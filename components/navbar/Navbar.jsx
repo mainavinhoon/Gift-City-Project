@@ -97,18 +97,11 @@ const Navbar = () => {
         )}
         {isProfileMenuOpen && (
           <ul className="bg-white p-2 border-b-2 border-gray-600 absolute z-10 right-0 mt-2 ">
-            <UserInfo/>
-{/*             
-             <li>
-              <Link href="/Profile">Profile</Link>
-            </li>
-            <li onClick={toggleProfileMenu}>
-              <Link onClick={toggleLoginStatus} href="/">
-                Logout
-              </Link>
-            </li>  */}
+           
           </ul>
         )}
+
+
       </div>
     </nav>
   );
