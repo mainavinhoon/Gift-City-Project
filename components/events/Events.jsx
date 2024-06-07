@@ -13,7 +13,7 @@ const Events = () => {
     date: "",
     price: "",
     description: "",
-    image: null, // To store the selected image file
+    image: "", // To store the selected image file
   });
   const [eventData, setEventData] = useState([]);
 
@@ -201,7 +201,7 @@ const Events = () => {
         )}
       </div>
       <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 py-4">
-        {eventData.length > 2 ? (
+        {eventData.length > 1 ? (
           <>
             {eventData.map((event, index) => (
               <div
