@@ -97,7 +97,7 @@ const Navbar = () => {
         )}
         {isProfileMenuOpen && (
           <ul className="bg-white p-2 border-b-2 border-gray-600 absolute z-10 right-0 mt-2 ">
-           
+           <UserInfo/>
           </ul>
         )}
 

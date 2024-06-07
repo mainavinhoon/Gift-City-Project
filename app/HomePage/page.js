@@ -1,5 +1,5 @@
 import Map from '@/components/Map/Map'
-import UserProfile from '@/components/UserProfile'
+import UserProfile from '@/components/UserData/UserProfile'
 import Events from '@/components/events/Events'
 import Introduction from '@/components/introduction/Introduction'
 

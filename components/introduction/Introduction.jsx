@@ -17,7 +17,7 @@ const Introduction = () => {
       
    
       <div className="relative z-1" style={{ paddingBottom: '56.25%' }}>
-        <Image src="/bgNew.png" alt="bg-img" fill={true} />
+        <Image  src="/bgNew.png" alt="bg-img" fill={true} />
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-4xl">
           Gujarat International Finance tech-city Gandhinagar <br />
           A Global Financial Hub
