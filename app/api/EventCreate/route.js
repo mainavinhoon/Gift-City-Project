@@ -19,6 +19,7 @@ export async function GET(req,res) {
   try {
     await MongodbConnection();
     const data = await Event.find();
+    
 
   
 

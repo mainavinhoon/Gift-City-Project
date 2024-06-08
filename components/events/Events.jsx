@@ -37,69 +37,10 @@ const Events = () => {
     fetchData();
   }, []);
 
-  const data = [
-    {
-      id: 1,
-      title: "Vande Gujarat Event",
-      location: "Gujarat, India",
-      date: "Oct 29 2023",
-      price: "IDR800.000",
-      img: "https://www.giftgujarat.in/assets/updates/1.webp",
-      description:
-        "hello there A paragraph is a series of sentences that are organized and coherent, and are all related to a single topic. Almost every piece of writing you do that is longer than a few sentences should be organized into paragraphs.",
-    },
-    {
-      id: 2,
-      title: " Google Webinar",
-      location: "Gujarat, India",
-      date: "Oct 29 2023",
-      price: "IDR800.000",
-      img: "https://www.giftgujarat.in/assets/updates/1.webp",
-      description: "",
-    },
-
-    {
-      id: 3,
-      title: "Hack-holick Event",
-      location: "Gujarat, India",
-      date: "Oct 29 2023",
-      price: "IDR800.000",
-      img: "https://www.giftgujarat.in/assets/updates/1.webp",
-    },
-    {
-      id: 4,
-      title: "First Event",
-      location: "Gujarat, India",
-      date: "Oct 29 2023",
-      price: "IDR800.000",
-      img: "https://www.giftgujarat.in/assets/updates/1.webp",
-      description: "",
-    },
-    {
-      id: 5,
-      title: "First Event",
-      location: "Gujarat, India",
-      date: "Oct 29 2023",
-      price: "IDR800.000",
-      img: "https://www.giftgujarat.in/assets/updates/1.webp",
-      description: "",
-    },
-    {
-      id: 6,
-      title: "First Event",
-      location: "Gujarat, India",
-      date: "Oct 29 2023",
-      price: "IDR800.000",
-      img: "https://www.giftgujarat.in/assets/updates/1.webp",
-      description: "",
-    },
-    // Add more data items as needed
-  ];
-
   const handleKnowMoreClick = (event) => {
     setSelectedEvent(event);
   };
-  const handleCreateEventClick = () => {
+  const handleCreateEventClick = (event) => {
     setCreateFormVisible(true);
   };
 
@@ -112,6 +53,18 @@ const Events = () => {
       },
       body: JSON.stringify(formData),
     });
+
+    const response = await fetch("api/EventCreate"); // Replace with the correct URL of your API route
+
+    if (response.status === 200) {
+      const data = await response.json();
+      setEventData(data);
+    } else {
+      console.error("Failed to fetch data");
+    }
+ 
+
+    setCreateFormVisible(false);
   };
 
 
@@ -144,7 +97,7 @@ const Events = () => {
     
   </p>
 
-  const handleCreateEvent = async (e) => {
+  const handleCreateEvent = async () => {
     // Handle event creation here
     const newEvent = {
       id: data.length + 1,
@@ -168,20 +121,20 @@ const Events = () => {
       price: "",
       description: "",
       image: null,
-    });
+    })
     setCreateFormVisible(false);
   };
 
   const handleCloseForm = () => {
     // Reset form and close it
-    setFormData({
-      title: "",
-      location: "",
-      date: "",
-      price: "",
-      description: "",
-      image: null,
-    });
+    // setFormData({
+    //   title: "",
+    //   location: "",
+    //   date: "",
+    //   price: "",
+    //   description: "",
+    //   image: null,
+    // });
     setCreateFormVisible(false);
   };
   return (
@@ -336,7 +289,7 @@ const Events = () => {
                       Close
                     </button>
                     <button
-                      onClick={handleFormSubmit}
+                      onClick={handleFormSubmit }
                       type="submit"
                       className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
                       Create Event
