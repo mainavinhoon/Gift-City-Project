@@ -32,7 +32,7 @@ const Navbar = () => {
 
 
   return (
-    <nav className="flex py-4 px-6 Gujarat International Finance tech-city items-center">
+    <nav className="flex w-full sticky bg-white z-10 top-0 py-4 px-6 Gujarat International Finance tech-city items-center">
       <div className=' bg'>
         <img
           src="https://www.giftgujarat.in/assets/common/vectors/logo-dark.svg"
@@ -69,7 +69,7 @@ const Navbar = () => {
         className={`ml-auto sm:hidden ${
           isMobileMenuOpen ? "block" : "hidden"
         }`}>
-        <div className=" sticky top-16 right-0 left-0 bg-white p-4 border-b-2 border-gray-600">
+        <div className="absolute top-16 right-0 left-0 bg-white p-4 border-b-2 border-gray-600">
           {menus.map((item, index) => (
             <Link
               href={item.value}
