@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
-    // await MongodbConnection();
+    await MongodbConnection();
     const  formData = await req.json();
     await Event.create(formData );
     console.log(formData)
@@ -17,7 +17,7 @@ export async function POST(req) {
 }
 export async function GET(req,res) {
   try {
-    // await MongodbConnection();
+    await MongodbConnection();
     const data = await Event.find();
     
 

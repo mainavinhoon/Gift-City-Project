@@ -69,7 +69,7 @@ const Navbar = () => {
         className={`ml-auto sm:hidden ${
           isMobileMenuOpen ? "block" : "hidden"
         }`}>
-        <div className="absolute top-16 right-0 left-0 bg-white p-4 border-b-2 border-gray-600">
+        <div className=" sticky top-16 right-0 left-0 bg-white p-4 border-b-2 border-gray-600">
           {menus.map((item, index) => (
             <Link
               href={item.value}
