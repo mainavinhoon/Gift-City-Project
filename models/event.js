@@ -7,7 +7,7 @@ const eventSchema = new Schema(
     location: { type: String },
     price: { type: String },
     description: { type: String },
-    // img: "string (URL)",
+    image: {type: String},
   },
 
   // {
