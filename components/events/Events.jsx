@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
-
+import { toast } from 'react-hot-toast';
+import { duration } from "@mui/material";
 
 const Events = () => {
   const { data: session } = useSession();
@@ -31,8 +32,12 @@ const Events = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+
+    
     console.log("Form submit clicked");
     try {
+      setCreateFormVisible(false);
+      toast.success('You did it, event is uploading!', {duration:3000});
       const cloudinaryFormData = new FormData();
       cloudinaryFormData.append("file", formData.image);
       cloudinaryFormData.append("upload_preset", "a4tjnp6v");
@@ -66,7 +71,8 @@ const Events = () => {
 
       
       fetchData();
-      setCreateFormVisible(false);
+     
+
     } catch (error) {
       console.error("Error uploading image or creating event:", error);
     }
@@ -74,6 +80,8 @@ const Events = () => {
 
   const handleFormChange = (e) => {
     const { name, value, type, files } = e.target;
+
+
     if (type === "file") {
       setFormData({ ...formData, image: files[0] });
     } else {
@@ -127,7 +135,7 @@ const Events = () => {
           </div>
         ) : null}
       </div>
-      <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 py-4">
+      <div className="grid  flex-rev sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 py-4">
         {eventData.length > 1 ? (
           eventData.map((event, index) => (
             <div
@@ -148,7 +156,7 @@ const Events = () => {
                 </button>
               </div>
             </div>
-          ))
+          )).reverse()
         ) : (
           <div className="text-2xl font-extrabold flex flex-col items-center">
             NO LIVE EVENT FOUND
