@@ -17,7 +17,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       
-      <body className=" sm:mt-0 sm:m-8 ">
+      <body className=" sm:mt-0  ">
         
      <Provider >
      <Navbar/>
