@@ -5,6 +5,7 @@ import { FaBars, FaUser } from "react-icons/fa"; // Import the menu icon from re
 import { useSession } from "next-auth/react";
 import { getServerSession } from "next-auth";
 import UserInfo from "../UserData/UserInfo";
+import Profile from "@/app/Profile/page";
 
 const Navbar = () => {
   
@@ -86,6 +87,7 @@ const Navbar = () => {
         </div>
       </div>
       <div className="ml-4  font-medium text-xl px-6 cursor-pointer text-black">
+      <button onClick={Profile}>Profile</button>
         {session ? (
           <button onClick={toggleProfileMenu} className="border p-4 rounded-full ">
             <FaUser className="" />
@@ -98,8 +100,11 @@ const Navbar = () => {
         {isProfileMenuOpen && (
           <ul className="bg-white p-2 border-b-2 border-gray-600 absolute z-10 right-0 mt-2 ">
            <UserInfo/>
+          
           </ul>
+         
         )}
+        
 
 
       </div>

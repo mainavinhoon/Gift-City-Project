@@ -21,6 +21,7 @@ const Map = () => {
     iconSize: [40, 40],
   });
 
+
   return (
     <div id='Map'>
       <div className="text-2xl font-medium py-4 underline">Map</div>

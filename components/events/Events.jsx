@@ -5,6 +5,8 @@ import axios from "axios";
 import { toast } from 'react-hot-toast';
 import { duration } from "@mui/material";
 
+
+
 const Events = () => {
   const { data: session } = useSession();
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -18,6 +20,7 @@ const Events = () => {
     image: "", // To store the selected image file
   });
   const [eventData, setEventData] = useState([]);
+  const [createdEvents, setCreatedEvents] = useState([])
 
 
   
@@ -65,6 +68,13 @@ const Events = () => {
         },
         body: JSON.stringify(newEvent),
       });
+
+      if(response.ok){
+        const createdEvent = await response.json();
+        setCreatedEvents((prevEvents) => [...prevEvents, createdEvent]);
+      } else {
+        console.error("faild to create event");
+      }
 
       console.log("API response:", response);
       
@@ -270,14 +280,20 @@ const Events = () => {
                     className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
                   >
                     Create Event
+                   
                   </button>
+                 
                 </div>
               </form>
             </div>
           </div>
         </div>
       )}
+
+      
+    
     </div>
+    
   );
 };
 
