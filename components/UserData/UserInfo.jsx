@@ -1,55 +1,62 @@
 "use client";
-import { useEffect, useState } from 'react';
-import { signOut, signIn } from "next-auth/react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 
+import { useEffect, useState } from 'react';
+import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 export default function UserInfo() {
   const { data: session } = useSession();
-  const router = useRouter();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const email = session.user.email;  
-      
-    // Replace with the desired email
-    fetch(`/api/user?email=${email}`) // Pass email as a query parameter
-      .then((response) => response.json())
-      .then((data) => setUser(data))
-      .catch((error) => console.error(error));
-  }, []);
+    const fetchUserData = async () => {
+      if (session) {
+        try {
+          const response = await fetch(`/api/user?email=${session.user.email}`);
+          if (response.ok) {
+            const data = await response.json();
+            setUser(data);
+          } else {
+            console.error('Failed to fetch user data');
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      }
+    };
 
+    fetchUserData();
+  }, [session]);
 
   const handleSignIn = async () => {
-    router.push("/Login");
+    // Implement your sign-in logic if needed
   };
 
   return (
-    <div className="grid place-items-center ">
-      <div className="shadow-lg p-8 bg-zinc-300/10 flex flex-col gap-2 my-6">
+    <div className="grid place-items-center">
+      <div className=" p-4  flex flex-col gap-2  rounded-lg">
         {session ? (
           <>
             <div className="flex flex-col items-start gap-2">
-             <div> UserName:<span className="font-bold">{" "} {user?.username}</span></div>
-             <div>   Email: <span className="font-bold">{session.user.email}</span></div>
-           
+              <div className="text-gray-800 text-lg">Username: {user?.username}</div>
+              <div className="text-gray-800 text-lg">Email: {session.user.email}</div>
             </div>
             <button
               onClick={() => signOut()}
-              className="bg-red-500 text-white font-bold px-6 py-2 mt-3">
+              className=" px-6  py-2 mt-3 rounded hover:bg-gray-200 transition duration-300 ease-in-out"
+            >
               Log Out
             </button>
           </>
         ) : (
           <button
             onClick={handleSignIn}
-            className="bg-green-500 text-white font-bold px-6 py-2 mt-3">
+            className="bg-green-500 text-white font-bold px-6 py-2 mt-3 rounded hover:bg-green-600 transition duration-300 ease-in-out"
+          >
             Sign In
           </button>
         )}
       </div>
-      {/* <button onClick={router.push('/Profile')} >Profile</button> */}
     </div>
   );
 }

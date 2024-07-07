@@ -1,13 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
+
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { FaBars, FaUser } from "react-icons/fa"; // Import the menu icon from react-icons/fa
+import { FaBars, FaUser } from "react-icons/fa";
 import { useSession } from "next-auth/react";
-import { getServerSession } from "next-auth";
 import UserInfo from "../UserData/UserInfo";
 
 const Navbar = () => {
-  
   const menus = [
     { label: "Home", value: "/" },
     { label: "About Us", value: "/AboutUs" },
@@ -15,38 +14,59 @@ const Navbar = () => {
     { label: "Community", value: "/Community" },
     { label: "Maps", value: "/#Map" },
   ];
-  const {data:session}=useSession();
 
+  const { data: session } = useSession();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currTab, setCurrTab] = useState("Home");
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef(null);
 
   const toggleLoginStatus = () => {
     setIsLoggedIn(!isLoggedIn);
   };
+
   const toggleProfileMenu = () => {
     setProfileMenuOpen(!isProfileMenuOpen);
   };
 
+  const handleOutsideClick = (e) => {
+    if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
+      setProfileMenuOpen(false);
+    }
+  };
 
+  useEffect(() => {
+    if (isProfileMenuOpen) {
+      document.addEventListener("click", handleOutsideClick);
+    } else {
+      document.removeEventListener("click", handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
+  }, [isProfileMenuOpen]);
+
+  const handleProfileClick = () => {
+    window.location.href = "/Profile";
+  };
 
   return (
-    <nav className="flex w-full sticky bg-white z-10 top-0 py-4 px-6 Gujarat International Finance tech-city items-center">
-      <div className=' bg'>
+    <nav className="flex w-full sticky top-0 bg-white z-10 py-4 px-6 items-center ">
+      <div className="bg">
         <img
           src="https://www.giftgujarat.in/assets/common/vectors/logo-dark.svg"
-          className=""
           width={50}
           height={50}
-          alt=""
+          alt="Logo"
         />
       </div>
       {/* Mobile menu button */}
       <div className="ml-auto block sm:hidden">
         <button
           onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
-          className="text-gray-600 focus:outline-none">
+          className="text-gray-600 focus:outline-none"
+        >
           <FaBars />
         </button>
       </div>
@@ -59,36 +79,39 @@ const Navbar = () => {
             className={`${
               currTab === item.label ? "border-b-2 border-gray-600" : ""
             }`}
-            onClick={() => setCurrTab(item.label)}>
+            onClick={() => setCurrTab(item.label)}
+          >
             {item.label}
           </Link>
         ))}
       </div>
       {/* Mobile menu */}
       <div
-        className={`ml-auto sm:hidden ${
-          isMobileMenuOpen ? "block" : "hidden"
-        }`}>
+        className={`ml-auto sm:hidden ${isMobileMenuOpen ? "block" : "hidden"}`}
+      >
         <div className="absolute top-16 right-0 left-0 bg-white p-4 border-b-2 border-gray-600">
           {menus.map((item, index) => (
             <Link
               href={item.value}
               key={index}
-              className="block py-2  scroll-smooth text-gray-600"
-              scroll 
+              className="block py-2 text-gray-600"
               onClick={() => {
                 setMobileMenuOpen(false);
                 setCurrTab(item.label);
-              }}>
+              }}
+            >
               {item.label}
             </Link>
           ))}
         </div>
       </div>
-      <div className="ml-4  font-medium text-xl px-6 cursor-pointer text-black">
+      <div className="ml-4 relative font-medium text-xl px-6 text-black">
         {session ? (
-          <button onClick={toggleProfileMenu} className="border p-4 rounded-full ">
-            <FaUser className="" />
+          <button
+            onClick={toggleProfileMenu}
+            className="border p-2 rounded-full"
+          >
+            <FaUser />
           </button>
         ) : (
           <button onClick={toggleLoginStatus}>
@@ -96,12 +119,19 @@ const Navbar = () => {
           </button>
         )}
         {isProfileMenuOpen && (
-          <ul className="bg-white p-2 border-b-2 border-gray-600 absolute z-10 right-0 mt-2 ">
-           <UserInfo/>
+          <ul
+            ref={profileMenuRef}
+            className="bg-white p-4 border border-gray-300 absolute z-10 right-0 mt-2 rounded-lg shadow-lg"
+          >
+            <UserInfo />
+            <button
+              onClick={handleProfileClick}
+              className=" px-4 py-2 ml-20 rounded hover:bg-gray-200 transition duration-300 ease-in-out"
+            >
+              Profile
+            </button>
           </ul>
         )}
-
-
       </div>
     </nav>
   );
