@@ -3,7 +3,10 @@ import React from 'react'
 
 const UserProfile = () => {
   return (
-    <div>UserProfile</div>
+    <div>UserProfile
+
+      hey i am profile
+    </div>
   )
 }
 
