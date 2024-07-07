@@ -1,17 +1,17 @@
 import mongoose, { Schema, models } from "mongoose";
 
-const eventSchema = new Schema(
+const postSchema = new Schema(
   {
-    title: { type: String },
-    // user: {type: mongoose.Schema.Types.ObjectId,ref: 'User'},
-    location: { type: String },
-    price: { type: String },
+    username: { type:String },
+    // likes: { type: String },
+    // comments: { type: String },
     description: { type: String },
     image: {type: String},
+    // date:Date.now(),
   },
 
   // {
-  //   usernae:{
+  //   username:{
   //     type:String,
   //     require:true,
   //   },
@@ -31,8 +31,8 @@ const eventSchema = new Schema(
   // },
   { timestamps: true }
 );
-const Event = models?.Event || mongoose.model("Event", eventSchema);
+const Post = models?.Post || mongoose.model("Post", postSchema);
 
-export default Event;
+export default Post;
 
 // mobile sndown thai gayou

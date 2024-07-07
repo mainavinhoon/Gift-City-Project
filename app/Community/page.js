@@ -17,6 +17,9 @@ import ShareIcon from '@mui/icons-material/Share';
 // import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CommentIcon from '@mui/icons-material/Comment';
+import Post from "@/components/community/Post";
+
+
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -50,7 +53,11 @@ export default function RecipeReviewCard() {
   return (
     <>
 
-    <div className='flex gap-14 mt-4 ml-48'>
+    <div>
+      <Post/>
+    </div>
+
+    {/* <div className='flex gap-14 mt-4 ml-48'>
 
     {[0, 1, 2].map((index) => (
           <div key={index}>
@@ -129,7 +136,7 @@ export default function RecipeReviewCard() {
               <CardHeader
                 avatar={
                   <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                    R
+                    
                   </Avatar>
                 }
                 action={
@@ -187,9 +194,13 @@ export default function RecipeReviewCard() {
             </Card>
           </div>
         ))}
+        
+         </div>
+         
+         */}
 
 
-      </div>
+     
     </>
   );
   

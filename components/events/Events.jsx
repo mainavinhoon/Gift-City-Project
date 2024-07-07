@@ -140,7 +140,7 @@ const Events = () => {
           eventData.map((event, index) => (
             <div
               key={index}
-              className="flex flex-col text-start p-4 border-gray-300 border py-4 gap-3 m-4 shadow-2xl rounded-sm"
+              className="flex  flex-col text-start p-4 h-fit border-gray-300 border py-4 gap-3 m-4 shadow-2xl rounded-sm"
             >
               <img src={event.image} alt={event.title} />
               <h2 className="text-black font-semibold">{event.title}</h2>
