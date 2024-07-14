@@ -2,12 +2,12 @@ import mongoose, { Schema, models } from "mongoose";
 
 const profileSchema = new Schema(
   {
-    username:{
-      type:mongoose.Schema.Types.ObjectId,
-       ref:"User",
-    },
+    
     name: {
         type: String,
+    },
+    email:{
+      type:String,
     },
     location: {
         type: String,

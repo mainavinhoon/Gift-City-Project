@@ -3,9 +3,8 @@ import mongoose, { Schema, models } from "mongoose";
 const postSchema = new Schema(
   {
     username: { 
-      // type:String,
-      type:mongoose.Schema.Types.ObjectId,
-      ref:"User",
+      type:String,
+    
     },
     // likes: { type: String },
     // comments: { type: String },

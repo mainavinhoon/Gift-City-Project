@@ -1,13 +1,17 @@
 "use client"
 import React, { useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { useEffect } from 'react'
 
 const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false)
+  const { data: session } = useSession();
   const [profile, setProfile] = useState({
-    name: 'Andy Horwitz',
-    location: 'New York',
-    occupation: 'Web Developer',
-    bio: 'Lives in New York. Photographer.',
+    email:session?.user?.email,
+    name: 'Write Your Name Here',
+    location: 'Write Location',
+    occupation: 'Write Your Occupation',
+    bio: 'Please Write Bio',
     dp: 'https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-profiles/avatar-1.webp', 
   })
   const [newDp, setNewDp] = useState(null)
@@ -25,19 +29,60 @@ const UserProfile = () => {
     const { name, value } = e.target
     setProfile(prevProfile => ({
       ...prevProfile,
-      [name]: value
+      [name]: value,
+      email:session?.user?.email
+       
     }))
   }
 
-  const handleSave = () => {
+  const handleSave = async() => {
     setIsEditing(false)
     if (newDp) {
       setProfile(prevProfile => ({
         ...prevProfile,
         dp: URL.createObjectURL(newDp)
+       
       }))
     }
+
+    const response = await fetch("api/profile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(profile),
+    });
+
+    console.log("New profile Response",response)
+
   }
+
+  const email = session?.user?.email;
+
+  async function fetchData() {
+    try {
+      const response = await fetch("api/profile",email);
+      if (response.status === 200) {
+        const profileData = await response.json();
+        console.log(profileData)
+       return setProfile(profileData);
+       
+      } else {
+        console.error("Failed to fetch data");
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+
+   
+   
+   //    second
+   //  }
+  }, [])
 
   const handleDpChange = (e) => {
     const file = e.target.files[0]

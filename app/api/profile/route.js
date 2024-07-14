@@ -17,7 +17,11 @@ export async function POST(req) {
 export async function GET(req,res) {
   try {
     await MongodbConnection();
-    const data = await Profile.find(username);
+    const email = await req.body;
+    console.log("input Email",email);
+
+    const data = await Profile.findOne({email});
+    console.log("Profile data", data);
     return NextResponse.json(data);
   } catch (error) {
     console.log(error);
