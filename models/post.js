@@ -2,11 +2,25 @@ import mongoose, { Schema, models } from "mongoose";
 
 const postSchema = new Schema(
   {
-    username: { type:String },
+    username: { 
+      // type:String,
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"User",
+    },
     // likes: { type: String },
     // comments: { type: String },
     description: { type: String },
     image: {type: String},
+
+    likes:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"Like",
+  },
+
+    comments:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"Comment",
+  }
     // date:Date.now(),
   },
 

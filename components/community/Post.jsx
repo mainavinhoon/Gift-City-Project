@@ -6,6 +6,9 @@ import { toast } from 'react-hot-toast';
 import { FaUserCircle } from "react-icons/fa";
 import Avatar from '@mui/material/Avatar';
 import { red } from '@mui/material/colors';
+import { BiLike } from "react-icons/bi";
+import { BiCommentAdd } from "react-icons/bi";
+
 
 const Posts = () => {
   const { data: session } = useSession();
@@ -13,7 +16,7 @@ const Posts = () => {
 //   const [selectedEvent, setSelectedEvent] = useState(null);
   const [createFormVisible, setCreateFormVisible] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
+    // username: "",
     // location: "",
     // date: "",
     // price: "",
@@ -21,7 +24,6 @@ const Posts = () => {
     image: "", // To store the selected image file
   });
   const [postData, setPostData] = useState([]);
-
 
   
 
@@ -33,10 +35,14 @@ const Posts = () => {
     setCreateFormVisible(true);
   };
 
+    
+  const likeHnadler = async () => {
+
+  }
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    
     console.log("Form submit clicked");
     try {
       setCreateFormVisible(false);
@@ -141,12 +147,12 @@ const Posts = () => {
           </div>
         ) : null}
       </div>
-      <div className="grid  flex-rev h-fit sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 py-4">
+      <div className="grid  flex-rev  h-fit sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 py-4">
         {postData.length > 1 ? (
           postData.map((post, index) => (
             <div
               key={index}
-              className="flex w-3/4 flex-col ml-12  py-4 border-gray-300 gap-2  shadow-xl rounded-sm"
+              className="flex w-3/4 flex-col ml-12 py-4 border-gray-300 gap-2  shadow-xl rounded-sm"
             >
               <div className="flex px-4">
               <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe"><FaUserCircle /> </Avatar>
@@ -160,6 +166,10 @@ const Posts = () => {
               <img src={post.image} alt={"image"} />
               {/* <h2 className="text-black font-semibold">{}</h2> */}
               <h4 className=" p-4 font-small">{post.description}</h4>
+              <div className="flex relative  mb-0 gap-5 justify-evenly">
+                  <div className=" "><BiLike size={25}/></div>
+                  <div><BiCommentAdd size={25}/></div>
+              </div>
              
           
             </div>

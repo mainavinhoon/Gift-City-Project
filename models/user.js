@@ -16,6 +16,7 @@ const userSchema = new Schema(
       require: true,
       select: false,
     },
+    
   },
   { timestamps: true }
 );
