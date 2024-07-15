@@ -3,11 +3,13 @@ import React, { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useEffect } from 'react'
 
+
 const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false)
   const { data: session } = useSession();
+  const email = session?.user?.email;
   const [profile, setProfile] = useState({
-    email:session?.user?.email,
+    email:email,
     name: 'Write Your Name Here',
     location: 'Write Location',
     occupation: 'Write Your Occupation',
@@ -57,15 +59,26 @@ const UserProfile = () => {
 
   }
 
-  const email = session?.user?.email;
+ 
+
 
   async function fetchData() {
     try {
-      const response = await fetch("api/profile",email);
+    
+     
+      const response = await fetch(`api/profile?email=${email || "nrawat1103@gmail.com"}`)
+      // .then(response => response.json())
+      // .then(data => console.log(data))
+      // .than(prevProfile => setProfile(response))
+      // .catch(error => console.error('Error:', error))
+
       if (response.status === 200) {
         const profileData = await response.json();
-        console.log(profileData)
-       return setProfile(profileData);
+        console.log("profile data",profileData)
+
+
+        setProfile(profileData);
+    
        
       } else {
         console.error("Failed to fetch data");
@@ -77,9 +90,9 @@ const UserProfile = () => {
 
   useEffect(() => {
     fetchData()
-
    
    
+   console.log("Updated Profile",profile)
    //    second
    //  }
   }, [])
@@ -107,6 +120,7 @@ const UserProfile = () => {
                   <img
                     src={profile.dp}
                     alt="Profile"
+                    loading='lazy'
                     className="rounded-full w-24 h-24 sm:w-36 sm:h-36 object-cover z-10 sm:static -mt-12 sm:mt-0 sm:mb-2"
                   />
                   <input

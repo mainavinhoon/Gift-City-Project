@@ -21,7 +21,7 @@ const profileSchema = new Schema(
         type: String,
     },
     dp:{
-        type:String
+        type:String,
     }
   },
   { timestamps: true }

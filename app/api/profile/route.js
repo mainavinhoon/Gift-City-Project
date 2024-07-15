@@ -1,7 +1,7 @@
 import { MongodbConnection } from "../../../lib/mongodb";
 import Post from "@/models/post"
 import Profile from "@/models/profile"
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
@@ -14,16 +14,24 @@ export async function POST(req) {
     console.log(error);
   }
 }
-export async function GET(req,res) {
+export async function GET(req) {
   try {
     await MongodbConnection();
-    const email = await req.body;
-    console.log("input Email",email);
 
-    const data = await Profile.findOne({email});
+    const { searchParams } = new URL(req.url);
+    const email = searchParams.get('email');
+
+    if (!email) {
+      throw new Error('Email query parameter is missing');
+    }
+
+    console.log("input Email", email);
+
+    const data = await Profile.findOne({ email:email });
     console.log("Profile data", data);
     return NextResponse.json(data);
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
