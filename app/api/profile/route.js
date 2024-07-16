@@ -14,6 +14,19 @@ export async function POST(req) {
     console.log(error);
   }
 }
+
+export async function PUT(req) {
+  try {
+    await MongodbConnection();
+    const  profileData = await req.json();
+    await Profile.findByIdAndUpdate({_id:profileData._id},profileData )
+    console.log("ProfileData",profileData)
+    return NextResponse.json(profileData);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export async function GET(req) {
   try {
     await MongodbConnection();

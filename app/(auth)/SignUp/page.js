@@ -63,6 +63,20 @@ const SignUp = () => {
             confirmPassword,
           }),
         });
+        const createProfile = await fetch("api/profile", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name:"Write Your Name Here",
+            email,
+            location:"Write Your Location Please",
+            occupation:"Write Your Occupation",
+            bio:"Write Something",
+            dp:"https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-profiles/avatar-1.webp",
+          }),
+        });
   
         if (res.ok) {
           const form = e.target;

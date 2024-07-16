@@ -9,6 +9,7 @@ const UserProfile = () => {
   const { data: session } = useSession();
   const email = session?.user?.email;
   const [profile, setProfile] = useState({
+    _id:"",
     email:email,
     name: 'Write Your Name Here',
     location: 'Write Location',
@@ -48,7 +49,7 @@ const UserProfile = () => {
     }
 
     const response = await fetch("api/profile", {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
