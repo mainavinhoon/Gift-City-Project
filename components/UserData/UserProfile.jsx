@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useEffect } from 'react'
-
+import axios from "axios";
 
 const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -29,23 +29,41 @@ const UserProfile = () => {
   }
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value} = e.target
     setProfile(prevProfile => ({
       ...prevProfile,
       [name]: value,
-      email:session?.user?.email
+      email:session?.user?.email,
+ 
        
     }))
   }
 
   const handleSave = async() => {
     setIsEditing(false)
-    if (newDp) {
+
+    
+    if (true) {
+  
+      const cloudinaryFormData = new FormData();
+      cloudinaryFormData.append("file", newDp);
+      cloudinaryFormData.append("upload_preset", "a4tjnp6v");
+
+      const cloudinaryResponse = await axios.post(
+        `https://api.cloudinary.com/v1_1/dyclw2qzy/image/upload`,
+        cloudinaryFormData
+      );
+
+      console.log("Cloudinary response:", cloudinaryResponse);
+
+      const imageUrl = cloudinaryResponse.data.secure_url;
+
       setProfile(prevProfile => ({
         ...prevProfile,
-        dp: URL.createObjectURL(newDp)
+        dp: imageUrl
        
       }))
+      
     }
 
     const response = await fetch("api/profile", {
@@ -101,6 +119,7 @@ const UserProfile = () => {
   const handleDpChange = (e) => {
     const file = e.target.files[0]
     if (file) {
+      
       setNewDp(file)
     }
   }
