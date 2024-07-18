@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useEffect } from 'react'
 import axios from "axios";
+import UserPost from './UserPost';
 
 const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -18,11 +19,7 @@ const UserProfile = () => {
     dp: 'https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-profiles/avatar-1.webp', 
   })
   const [newDp, setNewDp] = useState(null)
-  const [posts, setPosts] = useState([
-    { id: 1, title: 'My First Post', content: 'This is the content of my first post.', image: 'https://mdbcdn.b-cdn.net/img/Photos/Horizontal/Nature/4-col/img%20(73).webp', timestamp: '2h', likes: 34, comments: 12 },
-    { id: 2, title: 'A Day in New York', content: 'Sharing my experiences from my day in New York.', image: 'https://mdbcdn.b-cdn.net/img/Photos/Horizontal/Nature/4-col/img%20(72).webp', timestamp: '4h', likes: 56, comments: 23 },
-    { id: 3, title: 'Web Development Tips', content: 'Some useful tips for web development.', image: 'https://mdbcdn.b-cdn.net/img/Photos/Horizontal/Nature/4-col/img%20(74).webp', timestamp: '6h', likes: 78, comments: 34 },
-  ])
+
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing)
@@ -124,10 +121,7 @@ const UserProfile = () => {
     }
   }
 
-  const handleDeletePost = (postId) => {
-    const updatedPosts = posts.filter(post => post.id !== postId)
-    setPosts(updatedPosts)
-  }
+ 
 
   return (
     <div className=" min-h-screen py-5">
@@ -228,37 +222,10 @@ const UserProfile = () => {
               )}
             </div>
           </div>
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden mt-6">
-            <div className="p-4 bg-gray-100">
-              <p className="text-lg font-medium mb-4">Our Posts</p>
-              <div>
-                {posts.map(post => (
-                  <div key={post.id} className="mb-4 border-b border-gray-300 pb-4">
-                    <div className="mb-2">
-                      <h5 className="text-lg font-semibold">{post.title}</h5>
-                      <span className="text-sm text-gray-500">{post.timestamp}</span>
-                    </div>
-                    <p className="text-gray-700 mb-2">{post.content}</p>
-                    <img
-                      src={post.image}
-                      alt="Post"
-                      className="w-3/4 mx-auto h-40 object-cover rounded mb-2"
-                    />
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-gray-500">{post.likes} Likes</span>
-                      <span className="text-sm text-gray-500">{post.comments} Comments</span>
-                    </div>
-                    <button
-                      onClick={() => handleDeletePost(post.id)}
-                      className="px-3 py-1 bg-blue-400 text-white rounded"
-                    >
-                      Delete Post
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div>
+            <UserPost email={profile.email}/>
           </div>
+          
         </div>
       </div>
     </div>
