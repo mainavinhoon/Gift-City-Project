@@ -1,18 +1,18 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 
 const UserPost = () => {
-  const [posts, setPosts] = useState([]); // Initialized with an empty array
+  const [posts, setPosts] = useState([]);
   const { data: session } = useSession();
   const email = session?.user?.email || "nrawat1103@gmail.com";
-      
+
   const fetchData = async () => {
     try {
       console.log("Posts Email", email);
       const response = await fetch(`/api/userPosts?email=${email}`);
-      if (response.status === 200) {
+      if (response.ok) {
         const postData = await response.json();
         console.log("postData", postData);
         setPosts(postData);
@@ -22,16 +22,18 @@ const UserPost = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (email) {
+      fetchData();
+    }
+  }, [email]);
 
   const handleDeletePost = (postId) => {
     const updatedPosts = posts.filter(post => post.id !== postId);
     setPosts(updatedPosts);
-  }
+  };
 
   return (
     <div>
@@ -42,11 +44,11 @@ const UserPost = () => {
             {posts?.map(post => (
               <div key={post.id} className="mb-4 border-b gap-5 border-gray-300 pb-4">
                 <div className="mb-2">
-                  <h5 className="text-lg font-semibold">{post.title}</h5> {/* Assuming there's a title field */}
+                  <h5 className="text-lg font-semibold">{post.title}</h5>
                   <span className="text-sm text-gray-500">{post?.createdAt?.slice(0, 10)}</span>
                 </div>
                 <p className="text-gray-700 mb-2">{post.description}</p>
-                {post.image && ( // Check if image exists
+                {post.image && (
                   <img
                     src={post.image}
                     alt="Post"
@@ -70,6 +72,6 @@ const UserPost = () => {
       </div>
     </div>
   );
-}
+};
 
 export default UserPost;
