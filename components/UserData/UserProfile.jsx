@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useEffect } from 'react'
 import axios from "axios";
 import UserPost from './UserPost';
+import toast from 'react-hot-toast';
 
 const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -18,7 +19,8 @@ const UserProfile = () => {
     bio: 'Please Write Bio',
     dp: 'https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-profiles/avatar-1.webp', 
   })
-  const [newDp, setNewDp] = useState(null)
+  // const [newDp, setNewDp] = useState(profile.dp)
+  const [newDpStore, setNewDpStore] = useState(profile.dp)
 
 
   const handleEditToggle = () => {
@@ -35,6 +37,20 @@ const UserProfile = () => {
        
     }))
   }
+  const handleDpChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setNewDpStore(file)
+      setProfile(prevProfile => ({
+        ...prevProfile,
+        dp: URL.createObjectURL(file)
+       
+      }))
+    }
+  }
+
+ 
+
 
   const handleSave = async() => {
     setIsEditing(false)
@@ -43,7 +59,7 @@ const UserProfile = () => {
     if (true) {
   
       const cloudinaryFormData = new FormData();
-      cloudinaryFormData.append("file", newDp);
+      cloudinaryFormData.append("file", newDpStore);
       cloudinaryFormData.append("upload_preset", "a4tjnp6v");
 
       const cloudinaryResponse = await axios.post(
@@ -57,9 +73,10 @@ const UserProfile = () => {
 
       setProfile(prevProfile => ({
         ...prevProfile,
-        dp: imageUrl
+        dp:imageUrl
        
       }))
+      setNewDpStore(imageUrl)
       
     }
 
@@ -70,10 +87,12 @@ const UserProfile = () => {
       },
       body: JSON.stringify(profile),
     });
+    toast.success("If you changed the DP, Please save it again")
 
     console.log("New profile Response",response)
 
   }
+ 
 
  
 
@@ -113,15 +132,6 @@ const UserProfile = () => {
    //  }
   }, [])
 
-  const handleDpChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      
-      setNewDp(file)
-    }
-  }
-
- 
 
   return (
     <div className=" min-h-screen py-5">
