@@ -18,7 +18,7 @@ export async function POST(req) {
 export async function GET(req,res) {
   try {
     await MongodbConnection();
-    const data = await Post.find();
+    const data = await Post.find().populate("likes").populate("comments").exec();
     
 
   
