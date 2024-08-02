@@ -34,16 +34,16 @@ export default function UserInfo() {
 
   return (
     <div className="grid place-items-center">
-      <div className=" p-4  flex flex-col gap-2  rounded-lg">
+      <div className=" p-4  flex flex-col  rounded-lg">
         {session ? (
           <>
-            <div className="flex flex-col items-start gap-2">
+            <div className="flex flex-col w-78 md:w-64   gap-5">
               <div className="text-gray-800 text-lg">Username: {user?.username}</div>
               <div className="text-gray-800 text-lg">Email: {session.user.email}</div>
             </div>
             <button
               onClick={() => signOut()}
-              className=" px-6  py-2 mt-3 rounded hover:bg-gray-200 transition duration-300 ease-in-out"
+              className=" flex justify-center items-center mt-3 p-2  rounded hover:bg-gray-200 transition duration-300 ease-in-out"
             >
               Log Out
             </button>

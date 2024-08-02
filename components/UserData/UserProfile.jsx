@@ -9,10 +9,11 @@ import toast from 'react-hot-toast';
 const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false)
   const { data: session } = useSession();
+  const [user, setUser] = useState(null);
   const email = session?.user?.email;
   const [profile, setProfile] = useState({
     _id:"",
-    email:email,
+    email:"dummyEmail@gmail.com",
     name: 'Write Your Name Here',
     location: 'Write Location',
     occupation: 'Write Your Occupation',
@@ -20,7 +21,7 @@ const UserProfile = () => {
     dp: 'https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-profiles/avatar-1.webp', 
   })
   // const [newDp, setNewDp] = useState(profile.dp)
-  const [newDpStore, setNewDpStore] = useState(profile.dp)
+  const [newDpStore, setNewDpStore] = useState(profile?.dp)
 
 
   const handleEditToggle = () => {
@@ -101,7 +102,7 @@ const UserProfile = () => {
     try {
     
      
-      const response = await fetch(`api/profile?email=${email || "nrawat1103@gmail.com"}`)
+      const response = await fetch(`api/profile?email=${email}`)
       // .then(response => response.json())
       // .then(data => console.log(data))
       // .than(prevProfile => setProfile(response))
@@ -124,13 +125,33 @@ const UserProfile = () => {
   }
 
   useEffect(() => {
-    fetchData()
-   
+
+    if(email){
+      fetchData()
+    }
+    
+    const fetchUserData = async () => {
+      if (session) {
+        try {
+          const response = await fetch(`/api/user?email=${session.user.email}`);
+          if (response.ok) {
+            const data = await response.json();
+            setUser(data);
+          } else {
+            console.error('Failed to fetch user data');
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      }
+    };
+
+    fetchUserData();
    
    console.log("Updated Profile",profile)
    //    second
    //  }
-  }, [])
+  }, [session])
 
 
   return (
@@ -138,14 +159,14 @@ const UserProfile = () => {
       <div className="flex justify-center items-center h-full">
         <div className="w-full max-w-3xl px-4">
           <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-            <div className="bg-black text-white flex flex-col sm:flex-row items-center sm:items-end p-4 sm:p-0 sm:pb-4 relative" style={{ minHeight: '200px' }}>
+            <div className="bg-black text-white flex flex-col min-h-[200px]  sm:flex-row items-center sm:items-end p-4 sm:p-0 sm:pb-4 relative">
               <div className="flex flex-col items-center sm:items-start w-full sm:w-auto mb-4 sm:mb-0 sm:ml-4 relative">
                 <label htmlFor="dp" className="cursor-pointer">
                   <img
-                    src={profile.dp}
+                    src={profile?.dp}
                     alt="Profile"
                     loading='lazy'
-                    className="rounded-full w-24 h-24 sm:w-36 sm:h-36 object-cover z-10 sm:static -mt-12 sm:mt-0 sm:mb-2"
+                    className="rounded-full w-24 h-24 sm:w-36 sm:h-36 object-cover z-10 sm:static  md:mt-4 sm:mb-2"
                   />
                   <input
                     type="file"
@@ -164,10 +185,15 @@ const UserProfile = () => {
                   {isEditing ? 'Cancel' : 'Edit profile'}
                 </button>
               </div>
+          
               <div className="flex flex-col items-center sm:items-start sm:ml-4 mt-4 sm:mt-0">
-                <h5 className="text-lg">{profile.name}</h5>
-                <p className="text-gray-400">{profile.location}</p>
+                <h5 className="text-lg bold">{profile?.name}</h5>
+                <p className="text-gray-400">{profile?.location}</p>
+                <p className="text-gray-400">{profile?.occupation}</p>
+                
               </div>
+   
+             
             </div>
             <div className="p-4 bg-gray-100">
               {isEditing ? (
@@ -223,9 +249,9 @@ const UserProfile = () => {
                   <div className="mb-5">
                     <p className="text-lg font-medium mb-1">About</p>
                     <div className="p-4 bg-gray-200">
-                      <p className="italic mb-1">{profile.occupation}</p>
-                      <p className="italic mb-1">{profile.location}</p>
-                      <p className="italic mb-0">{profile.bio}</p>
+                      <p className="italic mb-1">{profile?.occupation}</p>
+                      <p className="italic mb-1">{profile?.location}</p>
+                      <p className="italic mb-0">{profile?.bio}</p>
                     </div>
                   </div>
                 </div>
@@ -233,7 +259,7 @@ const UserProfile = () => {
             </div>
           </div>
           <div>
-            <UserPost email={profile.email}/>
+            <UserPost email={profile?.email}/>
           </div>
           
         </div>

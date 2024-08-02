@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 const UserPost = () => {
   const [posts, setPosts] = useState([]);
   const { data: session } = useSession();
-  const email = session?.user?.email || "nrawat1103@gmail.com";
+  const email = session?.user?.email;
 
   const fetchData = async () => {
     try {

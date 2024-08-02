@@ -62,12 +62,12 @@ const Navbar = () => {
         />
       </div>
       {/* Mobile menu button */}
-      <div className="ml-auto block sm:hidden">
+      <div className=" flex justify-evenly ml-auto items-center md:hidden">
         <button
           onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
-          className="text-gray-600 focus:outline-none"
+          className="text-gray-600  focus:outline-none"
         >
-          <FaBars />
+          <FaBars  />
         </button>
       </div>
       {/* Desktop navigation */}
@@ -121,12 +121,12 @@ const Navbar = () => {
         {isProfileMenuOpen && (
           <ul
             ref={profileMenuRef}
-            className="bg-white p-4 border border-gray-300 absolute z-10 right-0 mt-2 rounded-lg shadow-lg"
+            className="bg-white w-fit flex flex-col p-4 border border-gray-300 absolute z-10 right-0 mt-2 rounded-lg shadow-lg"
           >
             <UserInfo />
             <button
               onClick={handleProfileClick}
-              className=" px-4 py-2 ml-20 rounded hover:bg-gray-200 transition duration-300 ease-in-out"
+              className=" flex justify-center items-center p-2 mx-3 rounded hover:bg-gray-200 transition duration-300 ease-in-out"
             >
               Profile
             </button>
