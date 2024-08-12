@@ -31,8 +31,8 @@ const MapComponent = () => {
 
   return (
     <div id='Map'>
-      <div className="text-2xl font-medium py-4 underline">Map</div>
-      <div>All events here in map</div>
+      <div className="text-2xl font-medium py-4 ml-5 underline">Map</div>
+      <div className='ml-5 '>All events here in map</div>
       <div className='z-0 relative mt-3 h-96 w-full'>
         <MapContainer center={center} zoom={zoomLevel} style={{ height: '100%', width: '100%' }}>
           <TileLayer

@@ -133,7 +133,7 @@ const Events = () => {
   return (
     <div id="Events">
       <div className="flex gap-x-3">
-        <div className="text-2xl font-medium py-4 underline">Events</div>
+        <div className="text-2xl font-medium py-4 ml-5 underline">Events</div>
         {session ? (
           <div className="ml-auto m-6">
             <button
