@@ -135,7 +135,7 @@ const Posts = () => {
   return (
     <div id="Events">
       <div className="flex gap-x-3">
-        <div className="text-2xl font-medium py-4 underline">Community Posts</div>
+        <div className="text-2xl font-medium py-4 ml-6  underline">Community Posts</div>
         {session ? (
           <div className="ml-auto m-6">
             <button
