@@ -26,7 +26,7 @@ const AboutUs = () => {
       <section className="bg-white py-8 px-4">
         <div className="container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <div className="text-center col-span-1 md:col-span-3">
-            <h2 className="section-title  mt-5 text-3xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">The Team Behind Pacifico</h2>
+            <h2 className="section-title  mt-5 text-3xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">The Team Behind Gift City</h2>
           </div>
           {/* Team Member 1 */}
           <div className="col-span-1">
