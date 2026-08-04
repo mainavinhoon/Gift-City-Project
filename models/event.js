@@ -10,6 +10,9 @@ const eventSchema = new Schema(
     image: { type: String },
     latitude: { type: Number },
     longitude: { type: Number },
+    date: { type: String },
+    category: { type: String },
+    rsvps: [{ type: String }], // Array of user emails who RSVP'd
   },
 
   // {
