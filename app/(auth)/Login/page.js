@@ -13,6 +13,16 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const handleGuestLogin = async () => {
+    setLoading(true);
+    try {
+      const res = await signIn("credentials", { email: "guest@giftcity.com", password: "guest123", redirect: false });
+      if (res?.error) toast.error("Guest login failed.");
+      else { toast.success("Welcome, Guest Explorer!"); router.replace("/"); }
+    } catch { toast.error("Something went wrong."); }
+    finally { setLoading(false); }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) { toast.error("Please fill in all fields."); return; }
@@ -87,6 +97,16 @@ const Login = () => {
                   Signing in…
                 </span>
               ) : "Sign In →"}
+            </button>
+            
+            <div className="relative flex items-center py-2">
+              <div className="flex-grow border-t" style={{ borderColor: "var(--rule)" }}></div>
+              <span className="flex-shrink-0 mx-4 mono-label" style={{ color: "var(--ink-light)" }}>OR</span>
+              <div className="flex-grow border-t" style={{ borderColor: "var(--rule)" }}></div>
+            </div>
+
+            <button type="button" onClick={handleGuestLogin} disabled={loading} className="btn-ghost w-full">
+              Sign In as Guest (Demo)
             </button>
           </form>
 
