@@ -24,7 +24,6 @@ const Posts = () => {
   const [createFormVisible, setCreateFormVisible] = useState(false);
   const [formData, setFormData] = useState({ description: "", image: "" });
   const [postData, setPostData] = useState([]);
-  const [likedPosts, setLikedPosts] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [activeCommentPost, setActiveCommentPost] = useState(null);
@@ -45,13 +44,37 @@ const Posts = () => {
     setFormData((p) => ({ ...p, [name]: type === "file" ? files[0] : value }));
   };
 
-  const handleLike = (id) => {
+  const handleLike = async (id) => {
     if (!session) { toast.error("Sign in to like posts."); return; }
-    setLikedPosts((p) => {
-      const n = new Set(p);
-      n.has(id) ? n.delete(id) : n.add(id);
-      return n;
-    });
+    
+    const userEmail = session.user.email;
+    
+    // Optimistic UI update
+    setPostData(postData.map(post => {
+      if (post._id === id) {
+        const hasLiked = post.likes?.includes(userEmail);
+        const newLikes = hasLiked 
+          ? post.likes.filter(e => e !== userEmail) 
+          : [...(post.likes || []), userEmail];
+        return { ...post, likes: newLikes };
+      }
+      return post;
+    }));
+
+    try {
+      const res = await fetch(`/api/communityPost/${id}/like`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userEmail }),
+      });
+      if (!res.ok) {
+        toast.error("Failed to like post");
+        fetchData(); // Revert on failure
+      }
+    } catch (e) {
+      toast.error("Something went wrong");
+      fetchData(); // Revert on failure
+    }
   };
 
   const handleFormSubmit = async (e) => {
@@ -148,7 +171,7 @@ const Posts = () => {
             ))
           ) : postData?.length > 0 ? (
             [...postData].reverse().map((post, i) => {
-              const liked = likedPosts.has(post._id || i);
+              const liked = post.likes?.includes(session?.user?.email);
               const color = hashColor(post.username);
               return (
                 <motion.div key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }}
@@ -187,7 +210,7 @@ const Posts = () => {
 
                   {/* Actions */}
                   <div className="flex items-center gap-1 pt-4 border-t" style={{ borderColor: "var(--rule)" }}>
-                    <button onClick={() => handleLike(post._id || i)}
+                    <button onClick={() => handleLike(post._id)}
                       className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider transition-all"
                       style={{
                         fontFamily: "var(--font-mono)",
