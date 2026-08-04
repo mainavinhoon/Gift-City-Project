@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -71,9 +72,11 @@ function SkeletonCard() {
 
 const Events = () => {
   const { data: session } = useSession();
+  const router = useRouter();
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [createFormVisible, setCreateFormVisible] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [rsvpLoading, setRsvpLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "", location: "", date: "", price: "", description: "", category: "", image: "",
   });
@@ -117,6 +120,44 @@ const Events = () => {
       if (res.ok) { toast.success("Event created!"); fetchData(); setFormData({ title: "", location: "", date: "", price: "", description: "", category: "", image: "" }); }
       else toast.error("Failed to create event.");
     } catch (err) { toast.dismiss(tid); toast.error("Something went wrong."); }
+  };
+
+  const handleRSVP = async (e) => {
+    if (e) e.stopPropagation();
+    console.log("RSVP button clicked. Session:", session);
+    
+    if (!session || !session.user || !session.user.email) {
+      toast.error("Please sign in to RSVP.");
+      setSelectedEvent(null); // Close the modal so they can see the redirect
+      router.push("/Login");
+      return;
+    }
+    
+    setRsvpLoading(true);
+    try {
+      const res = await fetch("/api/rsvp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eventId: selectedEvent._id, email: session.user.email }),
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        // Update local state to reflect new RSVPs
+        const updatedEvent = { ...selectedEvent, rsvps: data.rsvps };
+        setSelectedEvent(updatedEvent);
+        setEventData(eventData.map(e => e._id === selectedEvent._id ? updatedEvent : e));
+        
+        if (data.hasRSVPd) toast.success("You're on the list!");
+        else toast.success("RSVP cancelled.");
+      } else {
+        toast.error("Failed to RSVP.");
+      }
+    } catch (error) {
+      toast.error("Something went wrong.");
+    } finally {
+      setRsvpLoading(false);
+    }
   };
 
   return (
@@ -213,9 +254,23 @@ const Events = () => {
                   </div>
                 )}
               </div>
-              <div className="modal-footer">
-                <button onClick={() => setSelectedEvent(null)} className="btn-ghost" style={{ fontSize: "0.7rem", padding: "0.5rem 1rem" }}>Close</button>
-                <button className="btn-orange" style={{ fontSize: "0.7rem" }}>RSVP Now →</button>
+              <div className="modal-footer flex items-center justify-between">
+                <div className="flex -space-x-2">
+                  <span className="mono-label" style={{ color: "var(--ink-light)" }}>
+                    {selectedEvent.rsvps?.length || 0} attending
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => setSelectedEvent(null)} className="btn-ghost" style={{ fontSize: "0.7rem", padding: "0.5rem 1rem" }}>Close</button>
+                  <button 
+                    onClick={handleRSVP} 
+                    disabled={rsvpLoading}
+                    className={selectedEvent.rsvps?.includes(session?.user?.email) ? "btn-ink" : "btn-orange"} 
+                    style={{ fontSize: "0.7rem", transition: "all 0.2s" }}
+                  >
+                    {rsvpLoading ? "Processing..." : selectedEvent.rsvps?.includes(session?.user?.email) ? "✓ RSVP'd" : "RSVP Now →"}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>

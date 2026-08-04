@@ -27,6 +27,9 @@ const Posts = () => {
   const [likedPosts, setLikedPosts] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [activeCommentPost, setActiveCommentPost] = useState(null);
+  const [newComment, setNewComment] = useState("");
+  const [commentingId, setCommentingId] = useState(null);
 
   async function fetchData() {
     try {
@@ -76,6 +79,38 @@ const Posts = () => {
       else toast.error("Failed to post.");
     } catch { toast.dismiss(tid); toast.error("Something went wrong."); }
     finally { setSubmitting(false); }
+  };
+
+  const handleShare = (post) => {
+    const url = `${window.location.origin}${window.location.pathname}#post-${post._id}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Link copied to clipboard!");
+  };
+
+  const submitComment = async (postId) => {
+    if (!session) { toast.error("Sign in to comment."); return; }
+    if (!newComment.trim()) return;
+    
+    setCommentingId(postId);
+    try {
+      const res = await fetch(`/api/communityPost/${postId}/comment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: session.user.email, body: newComment }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPostData(postData.map(p => p._id === postId ? { ...p, comments: data.comments } : p));
+        setNewComment("");
+        toast.success("Reply posted!");
+      } else {
+        toast.error("Failed to post reply.");
+      }
+    } catch {
+      toast.error("Something went wrong.");
+    } finally {
+      setCommentingId(null);
+    }
   };
 
   return (
@@ -160,17 +195,78 @@ const Posts = () => {
                         letterSpacing: "0.1em",
                         fontSize: "0.65rem",
                       }}>
-                      {liked ? <FaHeart size={12} /> : <FaRegHeart size={12} />} Like
+                      {liked ? <FaHeart size={12} /> : <FaRegHeart size={12} />} {post.likes?.length || 0}
                     </button>
-                    <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider"
+                    <button 
+                      onClick={() => setActiveCommentPost(activeCommentPost === post._id ? null : post._id)}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider"
                       style={{ fontFamily: "var(--font-mono)", color: "var(--ink-light)", letterSpacing: "0.1em", fontSize: "0.65rem" }}>
-                      <FaComment size={12} /> Reply
+                      <FaComment size={12} /> {post.comments?.length || 0}
                     </button>
-                    <button className="ml-auto flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider"
+                    <button 
+                      onClick={() => handleShare(post)}
+                      className="ml-auto flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider"
                       style={{ fontFamily: "var(--font-mono)", color: "var(--ink-light)", letterSpacing: "0.1em", fontSize: "0.65rem" }}>
                       <FaShare size={11} /> Share
                     </button>
                   </div>
+                  
+                  {/* Inline Comments Section */}
+                  <AnimatePresence>
+                    {activeCommentPost === post._id && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden mt-4 pt-4 border-t"
+                        style={{ borderColor: "var(--rule)" }}
+                      >
+                        {/* Existing Comments */}
+                        <div className="space-y-4 mb-4 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                          {post.comments?.length > 0 ? (
+                            post.comments.map((comment, idx) => (
+                              <div key={idx} className="flex gap-2">
+                                <div className="w-6 h-6 rounded flex items-center justify-center text-white text-[9px] font-black flex-shrink-0"
+                                  style={{ background: hashColor(comment.username), fontFamily: "var(--font-mono)" }}>
+                                  {initials(comment.username)}
+                                </div>
+                                <div>
+                                  <div className="flex items-baseline gap-2">
+                                    <span style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", fontWeight: 700, color: "var(--ink)" }}>{comment.username}</span>
+                                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.55rem", color: "var(--ink-light)" }}>{timeAgo(comment.createdAt)}</span>
+                                  </div>
+                                  <p style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", color: "var(--ink)" }}>{comment.body}</p>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <p style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", color: "var(--ink-light)", textAlign: "center", padding: "1rem 0" }}>No replies yet.</p>
+                          )}
+                        </div>
+                        
+                        {/* Add Comment */}
+                        <div className="flex gap-2">
+                          <input 
+                            type="text" 
+                            placeholder="Add a reply..." 
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && submitComment(post._id)}
+                            className="input-editorial py-1.5 px-3 flex-1"
+                            style={{ fontSize: "0.75rem", minHeight: "auto" }}
+                          />
+                          <button 
+                            onClick={() => submitComment(post._id)}
+                            disabled={commentingId === post._id || !newComment.trim()}
+                            className="btn-orange" 
+                            style={{ padding: "0.35rem 0.75rem", fontSize: "0.7rem" }}
+                          >
+                            {commentingId === post._id ? "..." : "Reply"}
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               );
             })
