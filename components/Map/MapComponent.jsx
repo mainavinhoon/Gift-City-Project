@@ -15,11 +15,11 @@ const center = [23.1489, 72.6922];
 const zoomLevel = 14;
 
 const locations = [
-  { position: [23.1472, 72.6941], name: 'GIFT City Tower 1',  desc: 'Iconic skyscraper housing major financial entities' },
-  { position: [23.1461, 72.6931], name: 'GIFT City Road',     desc: 'Main arterial road of the financial district' },
-  { position: [23.1503, 72.6915], name: 'GIFT City Lake',     desc: 'Beautiful lakefront recreational area' },
-  { position: [23.1445, 72.6906], name: 'GIFT City Park',     desc: 'Green space for professionals to unwind' },
-  { position: [23.1490, 72.6937], name: 'IFSC Banking Zone',  desc: 'Dedicated zone for international banking units' },
+  { position: [23.1610, 72.6828], name: 'GIFT One Tower',      desc: 'The first iconic skyscraper of GIFT City, housing major financial institutions.' },
+  { position: [23.1661, 72.6811], name: 'GIFT City Club',      desc: 'Exclusive recreational club & resort for professionals.' },
+  { position: [23.1554, 72.6787], name: 'Jamnabai Narsee',     desc: 'Premier educational institution within the smart city.' },
+  { position: [23.1634, 72.6853], name: 'WTC GIFT City',       desc: 'World Trade Center complex in the heart of the IFSC.' },
+  { position: [23.1601, 72.6841], name: 'Pragya Tower',        desc: 'State-of-the-art commercial tower and IT park.' },
 ];
 
 const markerIcon = new L.Icon({
@@ -57,7 +57,7 @@ const MapComponent = () => {
             </div>
           </div>
 
-          <MapContainer center={center} zoom={zoomLevel} style={{ height: '100%', width: '100%' }} zoomControl={false}>
+          <MapContainer center={[23.1610, 72.6828]} zoom={15} style={{ height: '100%', width: '100%', zIndex: 0 }} zoomControl={false}>
             <TileLayer
               url="https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png?key=6hQHdjxKLOCvbPfNAr35"
               attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
