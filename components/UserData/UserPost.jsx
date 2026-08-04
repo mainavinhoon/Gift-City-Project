@@ -1,75 +1,101 @@
 'use client'
-
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { FaTrash } from 'react-icons/fa';
+
+function timeAgo(d) {
+  if (!d) return "just now";
+  const m = Math.floor((Date.now() - new Date(d)) / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
 
 const UserPost = () => {
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
   const email = session?.user?.email;
 
   const fetchData = async () => {
     try {
-      console.log("Posts Email", email);
       const response = await fetch(`/api/userPosts?email=${email}`);
       if (response.ok) {
-        const postData = await response.json();
-        console.log("postData", postData);
-        setPosts(postData);
-      } else {
-        console.error("Failed to fetch data");
+        setPosts(await response.json());
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (email) {
-      fetchData();
-    }
+    if (email) fetchData();
   }, [email]);
 
-  const handleDeletePost = (postId) => {
-    const updatedPosts = posts.filter(post => post.id !== postId);
-    setPosts(updatedPosts);
+  const handleDeletePost = async (postId) => {
+    // In a real app this should make an API call to delete
+    setPosts(posts.filter(post => post._id !== postId && post.id !== postId));
   };
 
+  if (loading) {
+    return (
+      <div className="grid sm:grid-cols-2 gap-0 border border-[var(--rule)]">
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="p-6 border-b sm:border-b-0 sm:border-r last:border-r-0" style={{ borderColor: "var(--rule)" }}>
+            <div className="skeleton h-32 w-full mb-3 rounded" />
+            <div className="skeleton h-4 w-3/4 mb-2 rounded" />
+            <div className="skeleton h-4 w-1/2 rounded" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!posts || posts.length === 0) {
+    return (
+      <div className="card-editorial text-center py-12">
+        <p className="mono-label mb-2" style={{ color: "var(--ink-light)" }}>Activity Feed</p>
+        <p style={{ fontFamily: "var(--font-body)", color: "var(--ink)" }}>You haven't posted anything yet.</p>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      <div className="bg-white shadow-lg rounded-lg overflow-hidden mt-6">
-        <div className="p-4 bg-gray-100">
-          <p className="text-lg font-medium mb-4">Our Posts</p>
-          <div>
-            {posts?.map(post => (
-              <div key={post.id} className="mb-4 border-b gap-5 border-gray-300 pb-4">
-                <div className="mb-2">
-                  <h5 className="text-lg font-semibold">{post.title}</h5>
-                  <span className="text-sm text-gray-500">{post?.createdAt?.slice(0, 10)}</span>
-                </div>
-                <p className="text-gray-700 mb-2">{post.description}</p>
-                {post.image && (
-                  <img
-                    src={post.image}
-                    alt="Post"
-                    className="w-3/4 mx-auto object-cover rounded mb-2"
-                  />
-                )}
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-gray-500">{post.likes} Likes</span>
-                  <span className="text-sm text-gray-500">{post.comments} Comments</span>
-                </div>
-                <button
-                  onClick={() => handleDeletePost(post.id)}
-                  className="px-3 py-1 bg-blue-400 text-white rounded"
-                >
-                  Delete Post
-                </button>
-              </div>
-            ))}
+    <div className="grid sm:grid-cols-2 gap-0 border border-[var(--rule)]">
+      {posts.map((post, i) => (
+        <div key={post._id || post.id || i} className="p-6 border-b sm:border-b-0 flex flex-col"
+             style={{ borderRight: i % 2 === 0 ? "1px solid var(--rule)" : "none", borderColor: "var(--rule)" }}>
+          
+          <div className="flex items-center justify-between mb-4">
+            <span className="mono-label" style={{ color: "var(--ink-light)" }}>
+              {timeAgo(post.createdAt)}
+            </span>
+            <button onClick={() => handleDeletePost(post._id || post.id)} 
+                    className="text-xs text-red-600 hover:text-red-800 transition-colors">
+              <FaTrash size={12} />
+            </button>
+          </div>
+
+          {post.image && (
+            <div className="mb-4 border" style={{ borderColor: "var(--rule)" }}>
+              <img src={post.image} alt="Post" className="w-full h-48 object-cover" />
+            </div>
+          )}
+          
+          <p className="flex-1 text-sm leading-relaxed mb-4" style={{ fontFamily: "var(--font-body)", color: "var(--ink)" }}>
+            {post.description || post.title}
+          </p>
+
+          <div className="pt-4 border-t flex items-center justify-between" style={{ borderColor: "var(--rule)" }}>
+            <span className="mono-label" style={{ color: "var(--orange)" }}>{post.likes || 0} LIKES</span>
+            <span className="mono-label" style={{ color: "var(--ink-light)" }}>{post.comments || 0} COMMENTS</span>
           </div>
         </div>
-      </div>
+      ))}
     </div>
   );
 };

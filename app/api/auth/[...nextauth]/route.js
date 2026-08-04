@@ -1,4 +1,7 @@
 import User from "@/models/user";
+import Profile from "@/models/profile";
+import Event from "@/models/event";
+import Post from "@/models/post";
 
 import { NextAuthOptions } from "next-auth";
 import NextAuth from "next-auth/next";
@@ -89,10 +92,49 @@ export const authOptions = {
 
 
           if (!user) {
-            throw (
-              (new Error("User not found"),
-              console.log("hey there this is error"))
-            );
+            // Auto-provision guest user if they don't exist yet
+            if (credentials.email === "guest@giftcity.com" && credentials.password === "guest123") {
+              const hashedPassword = await bcrypt.hash("guest123", 10);
+              const newGuest = await User.create({
+                username: "Guest Explorer",
+                email: "guest@giftcity.com",
+                password: hashedPassword,
+              });
+              
+              // Ensure profile exists for guest too
+              await Profile.create({
+                name: "Guest Explorer",
+                email: "guest@giftcity.com",
+                location: "GIFT City, Gujarat",
+                occupation: "Demo User",
+                bio: "I am exploring the GIFT City portal. I can create events, post on the community wall, and interact with the platform!",
+                dp: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=400&q=80"
+              });
+
+              // Add a static event
+              await Event.create({
+                title: 'Global FinTech Summit 2026',
+                location: 'GIFT City Club & Resort',
+                date: '2026-10-15',
+                price: 'Free for Members',
+                description: 'The annual global summit bringing together innovators, bankers, and tech leaders to discuss the future of digital finance.',
+                category: 'Conference',
+                image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80'
+              });
+
+              // Add a static community post
+              await Post.create({
+                description: 'Just arrived at GIFT City! The infrastructure here is amazing. Can\'t wait to see how the IFSC evolves over the next few years. Does anyone have recommendations for a good coffee place near Tower 1?',
+                username: 'guest@giftcity.com',
+                image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80',
+                likes: 14,
+                comments: 3
+              });
+              
+              return newGuest;
+            }
+
+            throw new Error("User not found");
           }
 
           const isCorrectPassword = await bcrypt.compare(

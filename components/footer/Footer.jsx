@@ -1,139 +1,136 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
+import Link from "next/link";
+import { FaTwitter, FaLinkedin, FaYoutube, FaInstagram } from "react-icons/fa";
+import { toast } from "react-hot-toast";
+
+const links = {
+  "The Portal": [
+    { label: "Home",       href: "/" },
+    { label: "Events",     href: "/#Events" },
+    { label: "Community",  href: "/Community" },
+    { label: "Map",        href: "/#Map" },
+  ],
+  "About": [
+    { label: "About Us",        href: "/AboutUs" },
+    { label: "GIFT City Overview", href: "#" },
+    { label: "IFSC Banking",    href: "#" },
+    { label: "Capital Markets", href: "#" },
+  ],
+  "Resources": [
+    { label: "Right to Info",   href: "#" },
+    { label: "Annual Reports",  href: "#" },
+    { label: "ODAS Portal",     href: "#" },
+    { label: "Useful Links",    href: "#" },
+  ],
+};
+
+const social = [
+  { Icon: FaTwitter,   label: "@GIFTCity",      href: "#" },
+  { Icon: FaLinkedin,  label: "LinkedIn",        href: "#" },
+  { Icon: FaYoutube,   label: "YouTube",         href: "#" },
+  { Icon: FaInstagram, label: "@GIFTCity_IFSC",  href: "#" },
+];
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (!email) { toast.error("Enter your email."); return; }
+    if (!consent) { toast.error("Please accept the consent checkbox."); return; }
+    toast.success("Subscribed! Welcome to the loop.");
+    setEmail(""); setConsent(false);
+  };
+
   return (
-    <footer className="bg-white border-t shadow-md">
-      <div className="container mx-auto py-8 px-4">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-8">
-          <div className="flex flex-col items-center md:items-start gap-4 md:w-1/4">
-            <img
-              src="https://www.giftgujarat.in/assets/common/vectors/logo-dark.svg"
-              alt="Logo"
-              className="w-24 md:w-32"
-            />
-            <div className="text-sm text-gray-600 text-center md:text-left">
-              © 2023 GIFT City - All intellectual property rights reserved
+    <footer style={{ background: "var(--dark-bg)", borderTop: "1px solid var(--orange)" }}>
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 pt-16 pb-8">
+        {/* Top row */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-8 pb-12 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+          {/* Brand */}
+          <div className="lg:col-span-2 space-y-6">
+            <div>
+              <p className="font-extrabold text-lg tracking-tight mb-0.5" style={{ fontFamily: "var(--font-body)", color: "var(--cream)" }}>
+                GIFT CITY
+              </p>
+              <p className="mono-label-dark" style={{ color: "var(--orange)" }}>IFSC COMMUNITY PORTAL · EST. 2015</p>
             </div>
-            <div className="mt-4">
-              <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                <a
-                  href="#"
-                  className="text-blue-600 hover:underline p-2 border rounded-full"
-                >
-                  Twitter
-                </a>
-                <a
-                  href="#"
-                  className="text-blue-600 hover:underline p-2 border rounded-full"
-                >
-                  LinkedIn
-                </a>
-                <a
-                  href="#"
-                  className="text-blue-600 hover:underline p-2 border rounded-full"
-                >
-                  Youtube
-                </a>
-                <a
-                  href="#"
-                  className="text-blue-600 hover:underline p-2 border rounded-full"
-                >
-                  Instagram
-                </a>
+            <p className="text-sm leading-relaxed max-w-xs" style={{ fontFamily: "var(--font-body)", color: "rgba(237,232,222,0.45)" }}>
+              India&apos;s first operational smart city.{" "}
+              <em style={{ color: "rgba(237,232,222,0.6)" }}>Headquartered where the wifi actually works.</em>
+            </p>
+            {/* Social handles */}
+            <div>
+              <p className="mono-label-dark mb-3" style={{ color: "rgba(237,232,222,0.35)" }}>Find us on</p>
+              <div className="flex flex-wrap gap-2">
+                {social.map(({ Icon, label, href }) => (
+                  <a key={label} href={href}
+                    className="pill-orange flex items-center gap-2"
+                    style={{ border: "1px solid rgba(181,64,26,0.4)", color: "rgba(237,232,222,0.6)", padding: "0.3rem 0.75rem", borderRadius: 999, fontFamily: "var(--font-mono)", fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.05em", textDecoration: "none", transition: "all 0.2s", display: "inline-flex" }}>
+                    <Icon size={11} />
+                    {label}
+                  </a>
+                ))}
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row md:gap-8 w-full">
-            <div className="flex flex-col md:w-1/2 mb-8 md:mb-0">
-              <h2 className="text-lg font-semibold mb-4 text-center md:text-left">
-                ABOUT
-              </h2>
-              <ul className="list-none text-center md:text-left space-y-2">
-                <li className="flex items-center">
-                  <span className="w-2.5 h-2.5 bg-blue-600 rounded-full mr-2"></span>
-                  BUSINESS
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2.5 h-2.5 bg-blue-600 rounded-full mr-2"></span>
-                  UPDATES
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2.5 h-2.5 bg-blue-600 rounded-full mr-2"></span>
-                  CONTACT
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2.5 h-2.5 bg-blue-600 rounded-full mr-2"></span>
-                  PRIVACY
-                </li>
-              </ul>
-            </div>
-
-            <div className="flex flex-col md:w-1/2">
-              <h2 className="text-lg font-semibold mb-4 text-center md:text-left">
-                DOWNLOADS
-              </h2>
-              <ul className="list-none text-center md:text-left space-y-2">
-                <li className="flex items-center">
-                  <span className="w-2.5 h-2.5 bg-blue-600 rounded-full mr-2"></span>
-                  RIGHT TO INFORMATION
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2.5 h-2.5 bg-blue-600 rounded-full mr-2"></span>
-                  ODAS
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2.5 h-2.5 bg-blue-600 rounded-full mr-2"></span>
-                  CAREER
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2.5 h-2.5 bg-blue-600 rounded-full mr-2"></span>
-                  ACCREDITATION
-                </li>
-                <li className="flex items-center">
-                  <span className="w-2.5 h-2.5 bg-blue-600 rounded-full mr-2"></span>
-                  USEFUL LINKS
-                </li>
-              </ul>
-            </div>
+          {/* Links */}
+          <div className="lg:col-span-2 grid grid-cols-3 gap-8">
+            {Object.entries(links).map(([heading, items]) => (
+              <div key={heading}>
+                <p className="mono-label-dark mb-4" style={{ color: "var(--orange)" }}>{heading}</p>
+                <ul className="space-y-2.5">
+                  {items.map((item) => (
+                    <li key={item.label}>
+                      <Link href={item.href}
+                        className="text-sm transition-colors"
+                        style={{ fontFamily: "var(--font-body)", color: "rgba(237,232,222,0.45)", textDecoration: "none" }}
+                        onMouseEnter={(e) => e.target.style.color = "var(--cream)"}
+                        onMouseLeave={(e) => e.target.style.color = "rgba(237,232,222,0.45)"}
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
 
-          <div className="flex flex-col md:w-1/4">
-            <span className="text-lg font-semibold mb-2 text-center md:text-left">
-              KEEP ME UPDATED
-            </span>
-            <p className="text-xs text-center md:text-left mb-4">
-              I want to stay up to date with the latest developments and exciting news on how we are shaping the future!
+          {/* Newsletter */}
+          <div className="lg:col-span-1">
+            <p className="mono-label-dark mb-2" style={{ color: "var(--orange)" }}>Stay Updated</p>
+            <p className="text-xs mb-4" style={{ fontFamily: "var(--font-body)", color: "rgba(237,232,222,0.4)", lineHeight: 1.6 }}>
+              Events, announcements, and occasional smart-city flexes.
             </p>
-            <div className="border-b-2 mb-4">
-              <input
-                type="email"
-                placeholder="your email"
-                required
-                className="bg-transparent border-none ring-offset-white ring-offset-0 w-full p-2"
-              />
-              <button className="border-none bg-transparent mt-2 w-full py-2 text-blue-600 hover:underline">
-                SIGN UP
+            <form onSubmit={handleSubscribe} className="space-y-3">
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com" className="input-editorial-dark w-full text-sm" />
+              <div className="flex items-start gap-2">
+                <input type="checkbox" id="footer-consent" checked={consent} onChange={(e) => setConsent(e.target.checked)}
+                  className="mt-0.5" style={{ accentColor: "var(--orange)" }} />
+                <label htmlFor="footer-consent" className="text-xs cursor-pointer" style={{ fontFamily: "var(--font-body)", color: "rgba(237,232,222,0.35)", lineHeight: 1.5 }}>
+                  I consent to share my info with GIFT City.
+                </label>
+              </div>
+              <button type="submit" className="btn-orange w-full" style={{ fontSize: "0.7rem", padding: "0.75rem 1rem" }}>
+                Subscribe →
               </button>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <input
-                type="checkbox"
-                className="form-checkbox text-blue-600"
-              />
-              <span>I consent to share my information with GIFT City</span>
-            </div>
+            </form>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center justify-between py-5 border-t mt-4">
-          <div className="text-center md:text-left md:w-1/4 text-sm">
-            +91-9099700247
-          </div>
-          <span className="text-orange-600 font-semibold text-base text-center md:text-left md:w-1/2">
-            query@giftgujarat.in | 079-61708300 | 1800 120 1300
-          </span>
-          <div className="md:w-1/4"></div>
+        {/* Bottom */}
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="mono-label-dark" style={{ color: "rgba(237,232,222,0.25)", fontSize: "0.6rem" }}>
+            © {new Date().getFullYear()} GIFT CITY · ALL RIGHTS RESERVED.
+          </p>
+          <p className="mono-label-dark" style={{ color: "rgba(237,232,222,0.2)", fontSize: "0.6rem" }}>
+            GANDHINAGAR, GUJARAT, INDIA 🇮🇳
+          </p>
         </div>
       </div>
     </footer>

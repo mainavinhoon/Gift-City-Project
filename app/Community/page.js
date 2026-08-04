@@ -1,207 +1,32 @@
-"use client"
-
-import * as React from 'react';
-import { styled } from '@mui/material/styles';
-import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import CardMedia from '@mui/material/CardMedia';
-import CardContent from '@mui/material/CardContent';
-import CardActions from '@mui/material/CardActions';
-import Collapse from '@mui/material/Collapse';
-import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import { red } from '@mui/material/colors';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
-// import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import CommentIcon from '@mui/icons-material/Comment';
+"use client";
+import React from 'react';
 import Post from "@/components/community/Post";
 
-
-
-const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-  marginLeft: 'auto',
-  transition: theme.transitions.create('transform', {
-    duration: theme.transitions.duration.shortest,
-  }),
-}));
-
-export default function RecipeReviewCard() {
-  const [expandedFirstSet, setExpandedFirstSet] = React.useState(Array(3).fill(false));
-  const [expandedSecondSet, setExpandedSecondSet] = React.useState(Array(3).fill(false));
-
-  const handleExpandClickFirstSet = (index) => {
-    const newExpanded = [...expandedFirstSet];
-    newExpanded[index] = !newExpanded[index];
-    setExpandedFirstSet(newExpanded);
-  };
-
-  const handleExpandClickSecondSet = (index) => {
-    const newExpanded = [...expandedSecondSet];
-    newExpanded[index] = !newExpanded[index];
-    setExpandedSecondSet(newExpanded);
-  };
-
-  
-
+export default function CommunityPage() {
   return (
-    <>
-
-    <div>
-      <Post/>
-    </div>
-
-    {/* <div className='flex gap-14 mt-4 ml-48'>
-
-    {[0, 1, 2].map((index) => (
-          <div key={index}>
-            <Card sx={{ maxWidth: 345 }}>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                    R
-                  </Avatar>
-                }
-                action={
-                  <IconButton aria-label="settings">
-                    <MoreVertIcon />
-                  </IconButton>
-                }
-                title="Shrimp and Chorizo Paella"
-                subheader="September 14, 2016"
-              />
-              <CardMedia
-                component="img"
-                height="194"
-                image="https://cdn.dnaindia.com/sites/default/files/styles/full/public/2017/01/10/536948-gift-city-pti-010917.jpg"
-                alt="Paella dish"
-              />
-              <CardContent>
-                <Typography variant="body2" color="text.secondary">
-                  This impressive paella is a perfect party dish and a fun meal to cook together with your guests. Add 1 cup of frozen peas along with the mussels, if you like.
-                </Typography>
-              </CardContent>
-              <CardActions disableSpacing>
-                <IconButton aria-label="add to favorites">
-                  <FavoriteIcon />
-                </IconButton>
-                <IconButton aria-label="share">
-                  <ShareIcon />
-                </IconButton>
-                <ExpandMore
-                  expand={expandedFirstSet[index]}
-                  onClick={() => handleExpandClickFirstSet(index)}
-                  aria-expanded={setExpandedFirstSet[index]}
-                  aria-label="show more"
-                >
-                  <CommentIcon />
-                </ExpandMore>
-              </CardActions>
-              <Collapse in={expandedFirstSet[index]} timeout="auto" unmountOnExit>
-                <CardContent>
-                  <Typography paragraph>Method:</Typography>
-                  <Typography paragraph>
-                    hello
-                  </Typography>
-                  <Typography paragraph>
-                    hello
-                  </Typography>
-                  <Typography paragraph>
-                    hello
-                  </Typography>
-                  <Typography>
-                    hello
-                  </Typography>
-                </CardContent>
-              </Collapse>
-            </Card>
-          </div>
-        ))}
-
-
-    </div>
-
-
-
-      <div className='flex gap-14 mt-4 ml-48'>
-      {[0, 1, 2].map((index) => (
-          <div key={index}>
-            <Card sx={{ maxWidth: 345 }}>
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                    
-                  </Avatar>
-                }
-                action={
-                  <IconButton aria-label="settings">
-                    <MoreVertIcon />
-                  </IconButton>
-                }
-                title="Shrimp and Chorizo Paella"
-                subheader="September 14, 2016"
-              />
-              <CardMedia
-                component="img"
-                height="194"
-                image="https://cdn.dnaindia.com/sites/default/files/styles/full/public/2017/01/10/536948-gift-city-pti-010917.jpg"
-                alt="Paella dish"
-              />
-              <CardContent>
-                <Typography variant="body2" color="text.secondary">
-                  This impressive paella is a perfect party dish and a fun meal to cook together with your guests. Add 1 cup of frozen peas along with the mussels, if you like.
-                </Typography>
-              </CardContent>
-              <CardActions disableSpacing>
-                <IconButton aria-label="add to favorites">
-                  <FavoriteIcon />
-                </IconButton>
-                <IconButton aria-label="share">
-                  <ShareIcon />
-                </IconButton>
-                <ExpandMore
-                  expand={expandedSecondSet[index]}
-                  onClick={() => handleExpandClickSecondSet(index)}
-                  aria-expanded={setExpandedSecondSet[index]}
-                  aria-label="show more"
-                >
-                  <CommentIcon />
-                </ExpandMore>
-              </CardActions>
-              <Collapse in={expandedSecondSet[index]} timeout="auto" unmountOnExit>
-                <CardContent>
-                  <Typography paragraph>Method:</Typography>
-                  <Typography paragraph>
-                    hello
-                  </Typography>
-                  <Typography paragraph>
-                    hello
-                  </Typography>
-                  <Typography paragraph>
-                    hello
-                  </Typography>
-                  <Typography>
-                    hello
-                  </Typography>
-                </CardContent>
-              </Collapse>
-            </Card>
-          </div>
-        ))}
-        
-         </div>
-         
-         */}
-
-
-     
-    </>
+    <main style={{ paddingTop: "5.5rem", background: "var(--cream)" }}>
+      {/* Page hero */}
+      <section className="max-w-7xl mx-auto px-6 sm:px-8 py-12">
+        <p className="mono-label mb-4" style={{ color: "var(--orange)" }}>💬 Community Hub</p>
+        <h1 className="display-xl leading-none mb-0" style={{ fontSize: "clamp(3rem, 8vw, 7rem)" }}>
+          The GIFT City<br />
+          <span style={{ color: "var(--orange)" }}>Community</span><br />
+          <span className="italic" style={{ fontStyle: "italic", color: "var(--green-dark)" }}>Wall.</span>
+        </h1>
+        <p className="mt-8 max-w-xl text-base leading-relaxed" style={{ fontFamily: "var(--font-body)", color: "var(--ink-light)" }}>
+          Share ideas, ask questions, and connect with professionals shaping the future of 
+          Indian finance. Think LinkedIn — but with better architecture and fewer recruiters.
+        </p>
+        <div className="mt-8 grid grid-cols-3 gap-0 border-t" style={{ borderColor: "var(--rule)", maxWidth: "28rem" }}>
+          {[["500+", "Members"], ["Daily", "New Posts"], ["Active", "Discussions"]].map(([v, l]) => (
+            <div key={l} className="pt-6 pr-6">
+              <p style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "1.75rem", color: "var(--ink)" }}>{v}</p>
+              <p className="mono-label" style={{ color: "var(--ink-light)" }}>{l}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+      <Post />
+    </main>
   );
-  
 }

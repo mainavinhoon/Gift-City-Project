@@ -2,298 +2,299 @@
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
-import { toast } from 'react-hot-toast';
-import { duration } from "@mui/material";
+import { toast } from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaPlus, FaTimes, FaMapMarkerAlt, FaCalendarAlt, FaTicketAlt } from "react-icons/fa";
+import { MdEventNote } from "react-icons/md";
 
+function EventCard({ event, index, onClick }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.07 }}
+      className="card-editorial flex flex-col cursor-pointer"
+      onClick={() => onClick(event)}
+    >
+      {event.image && (
+        <div className="w-full h-44 overflow-hidden mb-4 -mx-0 border-b" style={{ borderColor: "var(--rule)" }}>
+          <img src={event.image} alt={event.title}
+            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+        </div>
+      )}
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.1rem", color: "var(--ink)", lineHeight: 1.25 }}>
+          {event.title}
+        </h2>
+        {event.category && <span className="badge-editorial flex-shrink-0">{event.category}</span>}
+      </div>
+      <div className="space-y-1.5 mt-2 flex-1">
+        {event.location && (
+          <div className="flex items-center gap-2">
+            <FaMapMarkerAlt size={11} style={{ color: "var(--orange)" }} />
+            <span style={{ fontFamily: "var(--font-body)", fontSize: "0.82rem", color: "var(--ink-light)" }}>
+              {event.location}
+            </span>
+          </div>
+        )}
+        {event.date && (
+          <div className="flex items-center gap-2">
+            <FaCalendarAlt size={11} style={{ color: "var(--orange)" }} />
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.75rem", color: "var(--ink-light)" }}>
+              {event.date}
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="mt-4 pt-4 flex items-center justify-between border-t" style={{ borderColor: "var(--rule)" }}>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", fontWeight: 700, color: "var(--orange)" }}>
+          {event.price || "FREE"}
+        </span>
+        <button className="btn-ghost" style={{ padding: "0.35rem 1rem", fontSize: "0.65rem" }}>
+          Know More →
+        </button>
+      </div>
+    </motion.div>
+  );
+}
 
+function SkeletonCard() {
+  return (
+    <div className="card-editorial">
+      <div className="skeleton h-44 w-full mb-4" />
+      <div className="skeleton h-4 w-3/4 mb-2 rounded" />
+      <div className="skeleton h-3 w-1/2 mb-1 rounded" />
+      <div className="skeleton h-3 w-2/5 rounded" />
+    </div>
+  );
+}
 
 const Events = () => {
   const { data: session } = useSession();
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [createFormVisible, setCreateFormVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
-    title: "",
-    location: "",
-    date: "",
-    price: "",
-    description: "",
-    image: "", // To store the selected image file
+    title: "", location: "", date: "", price: "", description: "", category: "", image: "",
   });
   const [eventData, setEventData] = useState([]);
-  const [createdEvents, setCreatedEvents] = useState([])
 
+  async function fetchData() {
+    try {
+      const res = await fetch("api/EventCreate");
+      if (res.status === 200) setEventData(await res.json());
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  }
 
-  
+  useEffect(() => { fetchData(); }, []);
 
-  const handleKnowMoreClick = (event) => {
-    setSelectedEvent(event);
-  };
-
-  const handleCreateEventClick = () => {
-    setCreateFormVisible(true);
+  const handleFormChange = (e) => {
+    const { name, value, type, files } = e.target;
+    setFormData((p) => ({ ...p, [name]: type === "file" ? files[0] : value }));
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-
-    
-    console.log("Form submit clicked");
-    try {
-      setCreateFormVisible(false);
-      toast.success('You did it, event is uploading!', {duration:3000});
-      const cloudinaryFormData = new FormData();
-      cloudinaryFormData.append("file", formData.image);
-      cloudinaryFormData.append("upload_preset", "a4tjnp6v");
-
-      const cloudinaryResponse = await axios.post(
-        `https://api.cloudinary.com/v1_1/dyclw2qzy/image/upload`,
-        cloudinaryFormData
-      );
-
-      console.log("Cloudinary response:", cloudinaryResponse);
-
-      const imageUrl = cloudinaryResponse.data.secure_url;
-
-      const newEvent = {
-        ...formData,
-        image: imageUrl,
-      };
-
-      console.log("New event data:", newEvent);
-
-      const response = await fetch("api/EventCreate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newEvent),
-      });
-
-      if(response.ok){
-        const createdEvent = await response.json();
-        setCreatedEvents((prevEvents) => [...prevEvents, createdEvent]);
-      } else {
-        console.error("faild to create event");
-      }
-
-      console.log("API response:", response);
-      
-
-      
-      fetchData();
-     
-
-    } catch (error) {
-      console.error("Error uploading image or creating event:", error);
-    }
-  };
-
-  const handleFormChange = (e) => {
-    const { name, value, type, files } = e.target;
-
-
-    if (type === "file") {
-      setFormData({ ...formData, image: files[0] });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
-  };
-
-  const handleCloseForm = () => {
+    if (!formData.title || !formData.date) { toast.error("Title and date are required."); return; }
     setCreateFormVisible(false);
-  };
-
-
-
-   async function fetchData() {
-      try {
-        const response = await fetch("api/EventCreate");
-        if (response.status === 200) {
-          const data = await response.json();
-         return setEventData(data);
-          console.log(data)
-        } else {
-          console.error("Failed to fetch data");
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
+    const tid = toast.loading("Uploading event…");
+    try {
+      let imageUrl = "";
+      if (formData.image instanceof File) {
+        const fd = new FormData();
+        fd.append("file", formData.image);
+        fd.append("upload_preset", "a4tjnp6v");
+        const cr = await axios.post("https://api.cloudinary.com/v1_1/dyclw2qzy/image/upload", fd);
+        imageUrl = cr.data.secure_url;
       }
-    }
-
-   useEffect(() => {
-     fetchData()
-   
-    //  return () => {
-    //    second
-    //  }
-   }, [])
-   
- 
+      const res = await fetch("api/EventCreate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, image: imageUrl }),
+      });
+      toast.dismiss(tid);
+      if (res.ok) { toast.success("Event created!"); fetchData(); setFormData({ title: "", location: "", date: "", price: "", description: "", category: "", image: "" }); }
+      else toast.error("Failed to create event.");
+    } catch (err) { toast.dismiss(tid); toast.error("Something went wrong."); }
+  };
 
   return (
-    <div id="Events">
-      <div className="flex gap-x-3">
-        <div className="text-2xl font-medium py-4 ml-5 underline">Events</div>
-        {session ? (
-          <div className="ml-auto m-6">
-            <button
-              onClick={handleCreateEventClick}
-              className="bg-blue-500 text-white p-2 rounded-md hover:bg-black"
-            >
-              + Create Event
+    <section id="Events" style={{ background: "var(--cream)", borderTop: "1px solid var(--rule)" }}>
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-16">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
+          <div>
+            <p className="mono-label mb-2">📅 What&apos;s On</p>
+            <h2 className="display-md" style={{ color: "var(--ink)" }}>Upcoming Events.</h2>
+          </div>
+          {session && (
+            <button onClick={() => setCreateFormVisible(true)} className="btn-ink self-start" style={{ padding: "0.6rem 1.25rem", fontSize: "0.7rem" }}>
+              <FaPlus size={10} /> Create Event
             </button>
-          </div>
-        ) : null}
-      </div>
-      <div className="grid  flex-rev sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 py-4">
-        {eventData.length > 1 ? (
-          eventData.map((event, index) => (
-            <div
-              key={index}
-              className="flex  flex-col text-start p-4 h-fit border-gray-300 border py-4 gap-3 m-4 shadow-2xl rounded-sm"
-            >
-              <img src={event.image} alt={event.title} />
-              <h2 className="text-black font-semibold">{event.title}</h2>
-              <h4 className="text-base font-medium">{event.location}</h4>
-              <h5>{event.date}</h5>
-              <div className="mt-6 flex items-center justify-between gap-20">
-                <p className="text-red-800 text-xs">{event.price}</p>
-                <button
-                  className="bg-black rounded-md text-white px-8 py-3"
-                  onClick={() => handleKnowMoreClick(event)}
-                >
-                  Know More
-                </button>
-              </div>
-            </div>
-          )).reverse()
-        ) : (
-          <div className="text-2xl font-extrabold flex flex-col items-center">
-            NO LIVE EVENT FOUND
-          </div>
-        )}
-      </div>
-
-      {selectedEvent && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 overflow-y-auto">
-          <div className="modal-background absolute bg-black opacity-40 inset-0"></div>
-          <div className="modal-container absolute bg-white w-4/5 md:w-1/2 mx-auto rounded-md shadow-lg">
-            <div className="modal-content p-6">
-              <h2 className="text-3xl font-semibold mb-4">{selectedEvent.title}</h2>
-              <img
-                src={selectedEvent.image}
-                alt={selectedEvent.title}
-                className="my-4 h-60 w-full object-cover rounded-md"
-              />
-              <p className="text-base text-gray-600">{selectedEvent.location}</p>
-              <p className="text-base text-gray-600">{selectedEvent.date}</p>
-              <p className="text-base text-gray-600">{selectedEvent.price}</p>
-              <p className="text-base text-black">
-                <span>
-                  Description: <br />
-                </span>
-                {selectedEvent.description}
-              </p>
-              <div className="flex gap-x-3">
-                <button
-                  onClick={() => setSelectedEvent(null)}
-                  className="bg-gray-400 m-3 text-white px-4 py-2 rounded-md hover:bg-gray-500"
-                >
-                  Close
-                </button>
-                <button
-                  className="bg-blue-500 m-3 ml-auto text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                  onClick={() => {
-                    setSelectedEvent(null);
-                  }}
-                >
-                  RSVP
-                </button>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
-      )}
+        <hr className="rule mb-12" />
 
-      {createFormVisible && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="modal-background absolute bg-black opacity-40 inset-0"></div>
-          <div className="modal-container absolute bg-white w-4/5 md:w-1/2 mx-auto rounded-md shadow-lg">
-            <div className="modal-content p-6">
+        {/* Grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px border border-[var(--rule)]">
+          {loading ? (
+            [...Array(3)].map((_, i) => (
+              <div key={i} className="p-6 border-b sm:border-b-0 sm:border-r last:border-r-0" style={{ borderColor: "var(--rule)" }}>
+                <SkeletonCard />
+              </div>
+            ))
+          ) : eventData.length > 0 ? (
+            [...eventData].reverse().map((event, i) => (
+              <div key={i} className="p-6" style={{ borderRight: i % 3 !== 2 ? "1px solid var(--rule)" : "none" }}>
+                <EventCard event={event} index={i} onClick={setSelectedEvent} />
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full py-24 flex flex-col items-center text-center px-6">
+              <p className="section-num mb-4">0</p>
+              <h3 className="display-md mb-3" style={{ fontSize: "1.5rem" }}>No Events Yet.</h3>
+              <p style={{ fontFamily: "var(--font-body)", color: "var(--ink-light)", fontSize: "0.9rem" }}>
+                The calendar is suspiciously empty.{session ? " Create the first one." : " Sign in to create one."}
+              </p>
+              {session && (
+                <button onClick={() => setCreateFormVisible(true)} className="btn-orange mt-6" style={{ fontSize: "0.7rem" }}>
+                  <FaPlus size={10} /> Create Event
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Event Detail Modal ───────────────────────────────── */}
+      <AnimatePresence>
+        {selectedEvent && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" onClick={() => setSelectedEvent(null)}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} transition={{ duration: 0.2 }}
+              className="modal-box" onClick={(e) => e.stopPropagation()}
+            >
+              {selectedEvent.image && (
+                <div className="h-48 overflow-hidden border-b" style={{ borderColor: "var(--rule)" }}>
+                  <img src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-full object-cover" />
+                </div>
+              )}
+              <div className="modal-header">
+                <div>
+                  <p className="mono-label mb-1">{selectedEvent.category || "Event"}</p>
+                  <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.4rem", color: "var(--ink)" }}>
+                    {selectedEvent.title}
+                  </h2>
+                </div>
+                <button onClick={() => setSelectedEvent(null)} style={{ color: "var(--ink-light)" }}>
+                  <FaTimes size={18} />
+                </button>
+              </div>
+              <div className="modal-body">
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  {[
+                    { icon: FaMapMarkerAlt, label: "Location", value: selectedEvent.location || "TBA" },
+                    { icon: FaCalendarAlt,  label: "Date",     value: selectedEvent.date || "TBA" },
+                    { icon: FaTicketAlt,    label: "Entry",    value: selectedEvent.price || "Free" },
+                  ].map(({ icon: Icon, label, value }) => (
+                    <div key={label} className="border-t pt-3" style={{ borderColor: "var(--rule)" }}>
+                      <p className="mono-label mb-1" style={{ color: "var(--ink-light)" }}>{label}</p>
+                      <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", fontWeight: 600, color: "var(--ink)" }}>{value}</p>
+                    </div>
+                  ))}
+                </div>
+                {selectedEvent.description && (
+                  <div>
+                    <p className="mono-label mb-2" style={{ color: "var(--ink-light)" }}>About</p>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", color: "var(--ink-light)", lineHeight: 1.7 }}>
+                      {selectedEvent.description}
+                    </p>
+                  </div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button onClick={() => setSelectedEvent(null)} className="btn-ghost" style={{ fontSize: "0.7rem", padding: "0.5rem 1rem" }}>Close</button>
+                <button className="btn-orange" style={{ fontSize: "0.7rem" }}>RSVP Now →</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Create Event Modal ───────────────────────────────── */}
+      <AnimatePresence>
+        {createFormVisible && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" onClick={() => setCreateFormVisible(false)}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} transition={{ duration: 0.2 }}
+              className="modal-box" onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <div>
+                  <p className="mono-label mb-1">New Event</p>
+                  <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "1.4rem", color: "var(--ink)" }}>Create Event.</h2>
+                </div>
+                <button onClick={() => setCreateFormVisible(false)} style={{ color: "var(--ink-light)" }}><FaTimes size={18} /></button>
+              </div>
               <form onSubmit={handleFormSubmit}>
-                <h2 className="text-3xl font-semibold mb-4">Create Event</h2>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  placeholder="Title"
-                  onChange={handleFormChange}
-                  className="w-full px-3 py-2 border rounded-md"
-                />
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  placeholder="Location"
-                  onChange={handleFormChange}
-                  className="w-full px-3 py-2 border rounded-md"
-                />
-                <input
-                  type="text"
-                  name="date"
-                  value={formData.date}
-                  placeholder="Date"
-                  onChange={handleFormChange}
-                  className="w-full px-3 py-2 border rounded-md"
-                />
-                <input
-                  type="text"
-                  name="price"
-                  value={formData.price}
-                  placeholder="Price"
-                  onChange={handleFormChange}
-                  className="w-full px-3 py-2 border rounded-md"
-                />
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  placeholder="Description"
-                  onChange={handleFormChange}
-                  className="w-full px-3 py-2 border rounded-md"
-                />
-                <input
-                  type="file"
-                  name="image"
-                  onChange={handleFormChange}
-                  className="w-full"
-                />
-                <div className="mt-4 flex justify-end">
-                  <button
-                    onClick={handleCloseForm}
-                    className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 mr-2"
-                  >
-                    Close
-                  </button>
-                  <button
-                    type="submit"
-                    onClick={handleFormSubmit}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                  >
-                    Create Event
-                   
-                  </button>
-                 
+                <div className="modal-body space-y-4">
+                  <div>
+                    <p className="mono-label mb-1.5" style={{ color: "var(--ink-light)" }}>Event Title *</p>
+                    <input type="text" name="title" value={formData.title} onChange={handleFormChange}
+                      placeholder="e.g. GIFT City FinTech Summit 2025" className="input-editorial" required />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="mono-label mb-1.5" style={{ color: "var(--ink-light)" }}>Location</p>
+                      <input type="text" name="location" value={formData.location} onChange={handleFormChange}
+                        placeholder="GIFT City, Gujarat" className="input-editorial" />
+                    </div>
+                    <div>
+                      <p className="mono-label mb-1.5" style={{ color: "var(--ink-light)" }}>Date *</p>
+                      <input type="date" name="date" value={formData.date} onChange={handleFormChange}
+                        className="input-editorial" required />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="mono-label mb-1.5" style={{ color: "var(--ink-light)" }}>Entry Price</p>
+                      <input type="text" name="price" value={formData.price} onChange={handleFormChange}
+                        placeholder="Free / ₹500" className="input-editorial" />
+                    </div>
+                    <div>
+                      <p className="mono-label mb-1.5" style={{ color: "var(--ink-light)" }}>Category</p>
+                      <select name="category" value={formData.category} onChange={handleFormChange} className="input-editorial">
+                        <option value="">Select…</option>
+                        <option>Conference</option>
+                        <option>Workshop</option>
+                        <option>Networking</option>
+                        <option>Other</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="mono-label mb-1.5" style={{ color: "var(--ink-light)" }}>Description</p>
+                    <textarea name="description" value={formData.description} onChange={handleFormChange}
+                      rows={3} placeholder="What will attendees get out of this?" className="input-editorial resize-none" />
+                  </div>
+                  <div>
+                    <p className="mono-label mb-1.5" style={{ color: "var(--ink-light)" }}>Cover Image</p>
+                    <input type="file" name="image" onChange={handleFormChange} accept="image/*"
+                      className="w-full text-sm cursor-pointer border-b pb-2"
+                      style={{ fontFamily: "var(--font-body)", color: "var(--ink-light)", borderColor: "var(--rule)" }} />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" onClick={() => setCreateFormVisible(false)} className="btn-ghost" style={{ fontSize: "0.7rem" }}>Cancel</button>
+                  <button type="submit" className="btn-orange" style={{ fontSize: "0.7rem" }}><FaPlus size={10} /> Create</button>
                 </div>
               </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      
-    
-    </div>
-    
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
   );
 };
 
