@@ -11,10 +11,7 @@ const postSchema = new Schema(
     description: { type: String },
     image: {type: String},
 
-    likes:{
-      type:mongoose.Schema.Types.ObjectId,
-      ref:"Like",
-    },
+    likes: [{ type: String }],
 
     comments: [
       {
