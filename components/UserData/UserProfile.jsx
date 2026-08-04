@@ -1,271 +1,181 @@
-"use client"
-import React, { useState } from 'react'
-import { useSession } from 'next-auth/react'
-import { useEffect } from 'react'
+"use client";
+import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import axios from "axios";
 import UserPost from './UserPost';
 import toast from 'react-hot-toast';
 
+const COLORS = ["#B5401A", "#1A4A2A", "#1A2A4A", "#4A1A4A", "#4A3A1A"];
+function hashColor(str) { return COLORS[(str || "").split("").reduce((a, c) => a + c.charCodeAt(0), 0) % COLORS.length]; }
+
 const UserProfile = () => {
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
   const { data: session } = useSession();
-  const [user, setUser] = useState(null);
-  const email = session?.user?.email;
   const [profile, setProfile] = useState({
-    _id:"",
-    email:"dummyEmail@gmail.com",
-    name: 'Write Your Name Here',
-    location: 'Write Location',
-    occupation: 'Write Your Occupation',
-    bio: 'Please Write Bio',
-    dp: 'https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-profiles/avatar-1.webp', 
-  })
-  // const [newDp, setNewDp] = useState(profile.dp)
-  const [newDpStore, setNewDpStore] = useState(profile?.dp)
+    _id: "", email: "", name: "Your Name", location: "Your Location",
+    occupation: "Your Occupation", bio: "Tell the community something about yourself...",
+    dp: "https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-profiles/avatar-1.webp",
+  });
+  const [newDpFile, setNewDpFile] = useState(null);
+  const [dpPreview, setDpPreview] = useState(null);
+  const [saving, setSaving] = useState(false);
 
-
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing)
-  }
-
-  const handleChange = (e) => {
-    const { name, value} = e.target
-    setProfile(prevProfile => ({
-      ...prevProfile,
-      [name]: value,
-      email:session?.user?.email,
- 
-       
-    }))
-  }
-  const handleDpChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      setNewDpStore(file)
-      setProfile(prevProfile => ({
-        ...prevProfile,
-        dp: URL.createObjectURL(file)
-       
-      }))
-    }
-  }
-
- 
-
-
-  const handleSave = async() => {
-    setIsEditing(false)
-
-    
-    if (true) {
-  
-      const cloudinaryFormData = new FormData();
-      cloudinaryFormData.append("file", newDpStore);
-      cloudinaryFormData.append("upload_preset", "a4tjnp6v");
-
-      const cloudinaryResponse = await axios.post(
-        `https://api.cloudinary.com/v1_1/dyclw2qzy/image/upload`,
-        cloudinaryFormData
-      );
-
-      console.log("Cloudinary response:", cloudinaryResponse);
-
-      const imageUrl = cloudinaryResponse.data.secure_url;
-
-      setProfile(prevProfile => ({
-        ...prevProfile,
-        dp:imageUrl
-       
-      }))
-      setNewDpStore(imageUrl)
-      
-    }
-
-    const response = await fetch("api/profile", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(profile),
-    });
-    toast.success("If you changed the DP, Please save it again")
-
-    console.log("New profile Response",response)
-
-  }
- 
-
- 
-
+  const email = session?.user?.email;
 
   async function fetchData() {
     try {
-    
-     
-      const response = await fetch(`api/profile?email=${email}`)
-      // .then(response => response.json())
-      // .then(data => console.log(data))
-      // .than(prevProfile => setProfile(response))
-      // .catch(error => console.error('Error:', error))
-
-      if (response.status === 200) {
-        const profileData = await response.json();
-        console.log("profile data",profileData)
-
-
-        setProfile(profileData);
-    
-       
-      } else {
-        console.error("Failed to fetch data");
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+      const res = await fetch(`api/profile?email=${email}`);
+      if (res.status === 200) setProfile(await res.json());
+    } catch (error) { console.error("Error fetching profile:", error); }
   }
+  useEffect(() => { if (email) fetchData(); }, [session]);
 
-  useEffect(() => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile((prev) => ({ ...prev, [name]: value, email: session?.user?.email }));
+  };
+  const handleDpChange = (e) => {
+    const file = e.target.files[0];
+    if (file) { setNewDpFile(file); setDpPreview(URL.createObjectURL(file)); }
+  };
 
-    if(email){
-      fetchData()
-    }
-    
-    const fetchUserData = async () => {
-      if (session) {
-        try {
-          const response = await fetch(`/api/user?email=${session.user.email}`);
-          if (response.ok) {
-            const data = await response.json();
-            setUser(data);
-          } else {
-            console.error('Failed to fetch user data');
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-        }
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      let updatedProfile = { ...profile, email: session?.user?.email };
+      if (newDpFile instanceof File) {
+        const tid = toast.loading("Uploading photo…");
+        const fd = new FormData();
+        fd.append("file", newDpFile);
+        fd.append("upload_preset", "a4tjnp6v");
+        const cr = await axios.post("https://api.cloudinary.com/v1_1/dyclw2qzy/image/upload", fd);
+        toast.dismiss(tid);
+        updatedProfile.dp = cr.data.secure_url;
+        setDpPreview(null); setNewDpFile(null);
       }
-    };
+      setProfile(updatedProfile);
+      const res = await fetch("api/profile", {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedProfile),
+      });
+      if (res.ok) { toast.success("Profile saved."); setIsEditing(false); }
+      else toast.error("Failed to save changes.");
+    } catch { toast.error("Something went wrong."); }
+    finally { setSaving(false); }
+  };
 
-    fetchUserData();
-   
-   console.log("Updated Profile",profile)
-   //    second
-   //  }
-  }, [session])
+  const handleCancelEdit = () => {
+    setIsEditing(false); setNewDpFile(null); setDpPreview(null);
+    if (email) fetchData();
+  };
 
+  const displayDp = dpPreview || profile?.dp;
+  const initials = (profile?.name || "U").slice(0, 2).toUpperCase();
+  const color = hashColor(email);
 
   return (
-    <div className=" min-h-screen py-5">
-      <div className="flex justify-center items-center h-full">
-        <div className="w-full max-w-3xl px-4">
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-            <div className="bg-black text-white flex flex-col min-h-[200px]  sm:flex-row items-center sm:items-end p-4 sm:p-0 sm:pb-4 relative">
-              <div className="flex flex-col items-center sm:items-start w-full sm:w-auto mb-4 sm:mb-0 sm:ml-4 relative">
-                <label htmlFor="dp" className="cursor-pointer">
-                  <img
-                    src={profile?.dp}
-                    alt="Profile"
-                    loading='lazy'
-                    className="rounded-full w-24 h-24 sm:w-36 sm:h-36 object-cover z-10 sm:static  md:mt-4 sm:mb-2"
-                  />
-                  <input
-                    type="file"
-                    id="dp"
-                    name="dp"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleDpChange}
-                  />
-                </label>
-                <button
-                  onClick={handleEditToggle}
-                  className="mt-4 sm:mt-2 px-4 py-1 bg-white text-black border border-black rounded"
-                  style={{ height: '36px' }}
-                >
-                  {isEditing ? 'Cancel' : 'Edit profile'}
-                </button>
+    <div className="min-h-screen" style={{ paddingTop: "var(--navbar-height, 5.5rem)", background: "var(--cream)" }}>
+      <div className="max-w-4xl mx-auto px-6 sm:px-8 py-16">
+        <p className="mono-label mb-2" style={{ color: "var(--orange)" }}>GIFT City Directory</p>
+        <h1 className="display-md mb-12">Your Profile.</h1>
+
+        <div className="card-editorial flex flex-col md:flex-row gap-10">
+          {/* Avatar side */}
+          <div className="flex-shrink-0 flex flex-col items-center">
+            <label htmlFor="dp-upload" className={`block cursor-pointer relative ${isEditing ? "group" : ""}`}>
+              <div className="w-40 h-40 border-2 overflow-hidden flex items-center justify-center text-white text-4xl font-black"
+                style={{ borderColor: "var(--ink)", background: color, fontFamily: "var(--font-mono)", boxShadow: "6px 6px 0 var(--ink)" }}>
+                {displayDp ? (
+                  <img src={displayDp} alt="Profile" className="w-full h-full object-cover grayscale transition-all group-hover:grayscale-0" />
+                ) : initials}
               </div>
-          
-              <div className="flex flex-col items-center sm:items-start sm:ml-4 mt-4 sm:mt-0">
-                <h5 className="text-lg bold">{profile?.name}</h5>
-                <p className="text-gray-400">{profile?.location}</p>
-                <p className="text-gray-400">{profile?.occupation}</p>
-                
-              </div>
-   
-             
-            </div>
-            <div className="p-4 bg-gray-100">
-              {isEditing ? (
-                <div>
-                  <div className="mb-4">
-                    <label className="block text-gray-700">Name</label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={profile.name}
-                      onChange={handleChange}
-                      className="mt-1 p-2 border border-gray-300 rounded w-full"
-                    />
+              {isEditing && (
+                <>
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" style={{ backdropFilter: "blur(2px)" }}>
+                    <p className="mono-label text-white">Upload</p>
                   </div>
-                  <div className="mb-4">
-                    <label className="block text-gray-700">Location</label>
-                    <input
-                      type="text"
-                      name="location"
-                      value={profile.location}
-                      onChange={handleChange}
-                      className="mt-1 p-2 border border-gray-300 rounded w-full"
-                    />
+                  <input type="file" id="dp-upload" accept="image/*" className="hidden" onChange={handleDpChange} />
+                </>
+              )}
+            </label>
+            {!isEditing && <input type="file" id="dp-upload" accept="image/*" className="hidden" disabled />}
+          </div>
+
+          {/* Info side */}
+          <div className="flex-1">
+            <div className="flex flex-col h-full">
+              {!isEditing ? (
+                <>
+                  <div className="mb-8 border-b pb-6" style={{ borderColor: "var(--rule)" }}>
+                    <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "2.5rem", color: "var(--ink)", lineHeight: 1.1 }}>
+                      {profile?.name}
+                    </h2>
+                    <p className="mono-label mt-2" style={{ color: "var(--ink-light)" }}>
+                      {profile?.occupation || "GIFT City Professional"} · {profile?.location || "India"}
+                    </p>
+                    <p className="mono-label mt-1" style={{ color: "var(--orange)" }}>
+                      {email}
+                    </p>
                   </div>
-                  <div className="mb-4">
-                    <label className="block text-gray-700">Occupation</label>
-                    <input
-                      type="text"
-                      name="occupation"
-                      value={profile.occupation}
-                      onChange={handleChange}
-                      className="mt-1 p-2 border border-gray-300 rounded w-full"
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-gray-700">Bio</label>
-                    <textarea
-                      name="bio"
-                      value={profile.bio}
-                      onChange={handleChange}
-                      className="mt-1 p-2 border border-gray-300 rounded w-full"
-                    />
-                  </div>
-                  <button
-                    onClick={handleSave}
-                    className="px-4 py-2 bg-blue-600 text-white rounded"
-                  >
-                    Save
-                  </button>
-                </div>
-              ) : (
-                <div className="text-black">
-                  <div className="mb-5">
-                    <p className="text-lg font-medium mb-1">About</p>
-                    <div className="p-4 bg-gray-200">
-                      <p className="italic mb-1">{profile?.occupation}</p>
-                      <p className="italic mb-1">{profile?.location}</p>
-                      <p className="italic mb-0">{profile?.bio}</p>
+                  {profile?.bio && (
+                    <div className="mb-8">
+                      <p className="mono-label mb-2" style={{ color: "var(--ink-light)" }}>About</p>
+                      <p style={{ fontFamily: "var(--font-body)", fontSize: "1rem", color: "var(--ink-light)", lineHeight: 1.7 }}>
+                        {profile.bio}
+                      </p>
                     </div>
+                  )}
+                  <div className="mt-auto pt-4 flex gap-3 border-t" style={{ borderColor: "var(--rule)" }}>
+                    <button onClick={() => setIsEditing(true)} className="btn-ghost" style={{ fontSize: "0.7rem", padding: "0.5rem 1.5rem" }}>
+                      Edit Profile →
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-6">
+                  <div>
+                    <p className="mono-label mb-1.5" style={{ color: "var(--ink-light)" }}>Full Name</p>
+                    <input type="text" name="name" value={profile.name} onChange={handleChange} className="input-editorial" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="mono-label mb-1.5" style={{ color: "var(--ink-light)" }}>Location</p>
+                      <input type="text" name="location" value={profile.location} onChange={handleChange} className="input-editorial" />
+                    </div>
+                    <div>
+                      <p className="mono-label mb-1.5" style={{ color: "var(--ink-light)" }}>Occupation</p>
+                      <input type="text" name="occupation" value={profile.occupation} onChange={handleChange} className="input-editorial" />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="mono-label mb-1.5" style={{ color: "var(--ink-light)" }}>Bio</p>
+                    <textarea name="bio" value={profile.bio} onChange={handleChange} rows={3} className="input-editorial resize-none" />
+                  </div>
+                  
+                  <div className="mt-auto pt-6 flex gap-3 border-t" style={{ borderColor: "var(--rule)" }}>
+                    <button onClick={handleCancelEdit} className="btn-ghost" style={{ fontSize: "0.7rem", padding: "0.5rem 1.5rem" }}>
+                      Cancel
+                    </button>
+                    <button onClick={handleSave} disabled={saving} className="btn-orange" style={{ fontSize: "0.7rem", padding: "0.5rem 1.5rem" }}>
+                      {saving ? "Saving…" : "Save Changes →"}
+                    </button>
                   </div>
                 </div>
               )}
             </div>
           </div>
-          <div>
-            <UserPost email={profile?.email}/>
-          </div>
-          
+        </div>
+
+        {/* User Posts */}
+        <div className="mt-20">
+          <hr className="rule mb-12" />
+          <p className="mono-label mb-2" style={{ color: "var(--orange)" }}>Activity</p>
+          <h2 className="display-md mb-8">Your Posts.</h2>
+          <UserPost email={profile?.email} />
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default UserProfile
+export default UserProfile;

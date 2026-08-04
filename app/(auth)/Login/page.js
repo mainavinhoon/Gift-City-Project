@@ -1,130 +1,101 @@
 "use client";
-import React from "react";
-import Image from "next/image";
+import React, { useState } from "react";
 import Link from "next/link";
-import { useSession, signIn, signOut } from "next-auth/react";
-import { useState } from "react";
+import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const [email, setEmail] = useState("");
-  const router = useRouter();
-  const [error, setError] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!email || !password) {
-      setError("All fields are necessary.");
-      alert("All filed are necessury")
-    }
+    if (!email || !password) { toast.error("Please fill in all fields."); return; }
+    setLoading(true);
     try {
-      const res = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-      if (res?.error) {
-        setError("Invalid  Credentials!");
-        alert("Invalid  Credentials!")
-        return;
-      }
-      router.replace("/");
-    } catch (error) {
-      console.log("message is :", error);
-    }
+      const res = await signIn("credentials", { email, password, redirect: false });
+      if (res?.error) toast.error("Invalid credentials. Try again.");
+      else { toast.success("Welcome back!"); router.replace("/"); }
+    } catch { toast.error("Something went wrong."); }
+    finally { setLoading(false); }
   };
 
   return (
-    <div>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <Link href="/">
-            <Image
-              className="mx-auto "
-              src="https://www.giftgujarat.in/assets/common/vectors/logo-dark.svg"
-              alt="Your Company"
-              width={100}
-              height={100}
-            />
-          </Link>
-          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Sign in to your account
-          </h2>
+    <div className="min-h-screen flex" style={{ background: "var(--cream)", paddingTop: "var(--navbar-height, 5.5rem)" }}>
+      {/* ── Left editorial panel ────────────────────────────── */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 border-r" style={{ borderColor: "var(--rule)" }}>
+        <div>
+          <p className="mono-label mb-8" style={{ color: "var(--orange)" }}>
+            ● GIFT CITY · IFSC PORTAL
+          </p>
+          <h1 className="display-xl leading-none mb-0" style={{ fontSize: "clamp(3.5rem, 7vw, 6rem)" }}>
+            Welcome<br />Back.
+          </h1>
+          <p className="mt-8 max-w-sm leading-relaxed" style={{ fontFamily: "var(--font-body)", color: "var(--ink-light)", fontSize: "1rem" }}>
+            Sign in to access events, community posts, and everything happening at India&apos;s premier
+            international financial hub.
+          </p>
         </div>
+        <div>
+          <hr className="rule mb-6" />
+          <div className="grid grid-cols-3 gap-6">
+            {[["250+", "Companies"], ["40K+", "Professionals"], ["88+", "Financial Entities"]].map(([v, l]) => (
+              <div key={l} className="stat-item">
+                <p style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "1.75rem", color: "var(--ink)" }}>{v}</p>
+                <p className="mono-label" style={{ color: "var(--ink-light)" }}>{l}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+      {/* ── Right form panel ──────────────────────────────────── */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-md">
+          <p className="mono-label mb-2" style={{ color: "var(--orange)" }}>Sign In</p>
+          <h2 className="display-md mb-10" style={{ fontSize: "2rem" }}>Your Account.</h2>
+
+          <form onSubmit={handleSubmit} className="space-y-8">
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium leading-6 text-gray-900">
-                Email address
-              </label>
-              <div className="mt-2 focus:outline w-full p-2 flex ring-offset-0 rounded-md py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="email"
-                  
-                  required
-                  className="w-full border-0 outline-none focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
+              <p className="mono-label mb-2" style={{ color: "var(--ink-light)" }}>Email Address</p>
+              <input id="login-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email" required placeholder="you@example.com" className="input-editorial" />
+            </div>
+            <div>
+              <p className="mono-label mb-2" style={{ color: "var(--ink-light)" }}>Password</p>
+              <div className="relative">
+                <input id="login-password" type={showPassword ? "text" : "password"} value={password}
+                  onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required
+                  placeholder="Your password" className="input-editorial pr-10" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 p-2 transition-colors"
+                  style={{ color: "var(--ink-light)" }}>
+                  {showPassword ? <FaEyeSlash size={15} /> : <FaEye size={15} />}
+                </button>
               </div>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium leading-6 text-gray-900">
-                  Password
-                </label>
-                <div className="text-sm">
-                  {/* <a
-                    href="#"
-                    className="font-semibold text-indigo-600 hover:text-indigo-500">
-                    Forgot password?
-                  </a> */}
-                </div>
-              </div>
-              <div className="mt-2 focus:outline w-full p-2 flex ring-offset-0 rounded-md py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="current-password"
-                  required
-                  className="w-full border-0 outline-none focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-            {/* {setError?<div className="bg-red-500 rounded-md text-white p-2">
-                      <span className="" >
-                        {error} 
-                      </span>
-                    </div>:<></>} */}
-            <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                Sign in
-              </button>
-            </div>
+            <button type="submit" disabled={loading} className="btn-orange w-full">
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Signing in…
+                </span>
+              ) : "Sign In →"}
+            </button>
           </form>
 
-          <p className="mt-10 text-center text-sm text-gray-500">
-            Not Registered ?{" "}
-            <a
-              href="/SignUp"
-              className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
-              Sign Up Here
-            </a>
+          <hr className="rule mt-10 mb-8" />
+          <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", color: "var(--ink-light)" }}>
+            Not registered?{" "}
+            <Link href="/SignUp" className="font-bold" style={{ color: "var(--orange)", textDecoration: "none" }}>
+              Create an account →
+            </Link>
           </p>
         </div>
       </div>
