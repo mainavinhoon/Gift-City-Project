@@ -91,8 +91,8 @@ const UserPost = () => {
           </p>
 
           <div className="pt-4 border-t flex items-center justify-between" style={{ borderColor: "var(--rule)" }}>
-            <span className="mono-label" style={{ color: "var(--orange)" }}>{post.likes || 0} LIKES</span>
-            <span className="mono-label" style={{ color: "var(--ink-light)" }}>{post.comments || 0} COMMENTS</span>
+            <span className="mono-label" style={{ color: "var(--orange)" }}>{Array.isArray(post.likes) ? post.likes.length : (post.likes || 0)} LIKES</span>
+            <span className="mono-label" style={{ color: "var(--ink-light)" }}>{Array.isArray(post.comments) ? post.comments.length : (post.comments || 0)} COMMENTS</span>
           </div>
         </div>
       ))}
