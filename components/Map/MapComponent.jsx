@@ -31,7 +31,7 @@ const markerIcon = new L.Icon({
 
 const MapComponent = () => {
   return (
-    <section id="Map" style={{ background: "var(--cream)", borderTop: "1px solid var(--rule)" }}>
+    <section id="Map" style={{ background: "var(--cream)", borderTop: "1px solid var(--rule)", position: "relative", zIndex: 0 }}>
       <div className="max-w-7xl mx-auto px-6 sm:px-8 py-16">
         <div className="mb-12">
           <p className="mono-label mb-2">🗺 Explore the District</p>
@@ -44,7 +44,7 @@ const MapComponent = () => {
 
         <div className="relative border-2" style={{ height: '480px', borderColor: "var(--ink)", boxShadow: "8px 8px 0 var(--orange)" }}>
           {/* Legend overlay */}
-          <div className="absolute top-4 right-4 z-[1000] p-4 border"
+          <div className="absolute top-4 right-4 z-[400] p-4 border"
                style={{ background: "var(--cream)", borderColor: "var(--ink)", boxShadow: "4px 4px 0 var(--ink)", width: "220px" }}>
             <p className="mono-label mb-3" style={{ color: "var(--orange)" }}>Key Locations</p>
             <div className="space-y-2">
